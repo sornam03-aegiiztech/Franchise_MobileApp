@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-import '../VerficationScreens/FranchiseDetailsScreen.dart';
+import '../../../Appconfig.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
+
 
 
 
 
 class OtpScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String email;
 
-  const OtpScreen({super.key, required this.phoneNumber});
+  const OtpScreen({super.key, required this.email, });
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -20,6 +22,7 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   TextEditingController otpController = TextEditingController();
+  final otpControllerX = Get.put(OtpController());
 
   int secondsRemaining = 30;
   Timer? timer;
@@ -56,34 +59,14 @@ class _OtpScreenState extends State<OtpScreen> {
       backgroundColor: const Color(0xff1E1E1E),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24,vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 24,vertical: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-              /// Back Button
-              Align(
-                alignment: Alignment.centerLeft,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.white, size: 16),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
               /// Title
               const Text(
-                "Verify your number",
+                "Verify your email",
                 style: TextStyle(
                     fontSize: 22,
                     color: Colors.white,
@@ -93,14 +76,14 @@ class _OtpScreenState extends State<OtpScreen> {
               const SizedBox(height: 8),
 
               const Text(
-                "We've sent 4-digit code to",
+                "We've sent 6-digit code to",
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 4),
 
               Text(
-                widget.phoneNumber,
+                widget.email,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -112,7 +95,7 @@ class _OtpScreenState extends State<OtpScreen> {
               /// PIN Code Field
               PinCodeTextField(
                 appContext: context,
-                length: 4,
+                length: 6,
                 controller: otpController,
                 keyboardType: TextInputType.number,
                 textStyle: const TextStyle(
@@ -143,8 +126,13 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                   secondsRemaining == 0
                       ? GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       startTimer();
+
+                      await AppConfig.httpPost("send_otp", {
+                        "email": widget.email,
+                        "role": "Franchise",
+                      });
                     },
                     child: const Text(
                       "Resend",
@@ -174,7 +162,10 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                   ),
                   onPressed: () {
-                    Get.to(FranchiseDetailsScreen());
+                    otpControllerX.verifyOtp(
+                      email: widget.email,
+                      otp: otpController.text,
+                    );
                   },
                   child: const Text(
                     "Continue",

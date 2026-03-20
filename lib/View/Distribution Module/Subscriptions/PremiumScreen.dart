@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 
 import '../VerficationScreens/Notifications.dart';
 
-class ActivateFranchiseScreen extends StatelessWidget {
-  const ActivateFranchiseScreen({super.key});
+class ActivateDistributionScreen extends StatelessWidget {
+  const ActivateDistributionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

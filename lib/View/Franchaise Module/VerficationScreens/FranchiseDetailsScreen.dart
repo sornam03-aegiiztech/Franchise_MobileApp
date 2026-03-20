@@ -1,12 +1,13 @@
 import 'dart:io';
-import 'dart:ui' as BorderType;
+
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../Subscriptions/PremiumScreen.dart';
-import 'Notifications.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/VerificationController.dart';
+
 
 
 class FranchiseDetailsScreen extends StatefulWidget {
@@ -18,22 +19,32 @@ class FranchiseDetailsScreen extends StatefulWidget {
 }
 
 class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
+  final controller = Get.put(FranchiseController());
 
-  File? selectedImage;
+  Map<String, File?> selectedImages = {};
 
   final ImagePicker picker = ImagePicker();
 
-  Future<void> pickImage(ImageSource source) async {
+  Future<void> pickImage(ImageSource source, String type) async {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
+      File file = File(image.path);
+
+      /// ✅ UI display
       setState(() {
-        selectedImage = File(image.path);
+        selectedImages[type] = file;
       });
+
+      /// ✅ STORE FILE IN CONTROLLER (NO API CALL 🔥)
+      if (type == "inner") controller.innerImageFile = file;
+      if (type == "owner") controller.ownerImageFile = file;
+      if (type == "gov") controller.govIdFile = file;
+      if (type == "license") controller.licenseFile = file;
     }
   }
 
-  void showImagePickerOptions() {
+  void showImagePickerOptions(String type) {
     showModalBottomSheet(
       context: context,
       builder: (_) {
@@ -47,7 +58,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
                 title: const Text("Camera"),
                 onTap: () {
                   Navigator.pop(context);
-                  pickImage(ImageSource.camera);
+                  pickImage(ImageSource.camera, type); /// ✅ FIX
                 },
               ),
               ListTile(
@@ -55,7 +66,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
                 title: const Text("Gallery"),
                 onTap: () {
                   Navigator.pop(context);
-                  pickImage(ImageSource.gallery);
+                  pickImage(ImageSource.gallery, type); /// ✅ FIX
                 },
               ),
             ],
@@ -66,7 +77,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
   }
 
   int currentStep = 1; // Change 1,2,3 for different screens
-  String? selectedCategory;
+
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +248,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
         const SizedBox(height: 15),
 
-        _buildUploadBox("Upload Inner Image"),
+        _buildUploadBox("Upload Inner Image", "inner"),
 
         const SizedBox(height: 15),
         Container(
@@ -250,7 +261,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             children: [
 
               /// Brand Name
-              _buildTextField("Brand Name"),
+              _buildTextField("Brand Name", controller: controller.brandNameController),
 
               const SizedBox(height: 15),
 
@@ -259,33 +270,101 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
               const SizedBox(height: 15),
 
-              _buildTextField("Branch / Territory"),
+              _buildTextField("Branch / Territory",controller: controller.branchController),
 
               const SizedBox(height: 15),
 
 
               /// Business Description
-              _buildTextField("Business Description", maxLines: 3),
+              _buildTextField("Business Description", maxLines: 3,controller: controller.descController),
 
             ],
           ),
         ),
         const SizedBox(height: 15),
-        _buildUploadBox("Upload Brand Cover Image"),
+        _buildUploadBox("Upload Brand Owner Image","owner"),
         const SizedBox(height: 15),
-        _buildTextField("Owner / Company Name"),
+        _buildTextField("Owner / Company Name",controller: controller.ownerController),
         const SizedBox(height: 15),
-        _buildTextField("Mobile Number"),
+        _buildTextField("Mobile Number",controller: controller.mobileController),
         const SizedBox(height: 15),
-        _buildTextField("Business Email"),
+        _buildTextField("Business Email",controller: controller.emailController),
 
         const SizedBox(height: 30),
 
         _buildButton("Next Step", () {
+          if (controller.innerImageFile == null) {
+            EasyLoading.showToast("Upload Inner Image");
+            return;
+          }
+
+          if (controller.brandNameController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Brand Name");
+            return;
+          }
+
+          if (controller.selectedCategory.value.isEmpty) {
+            EasyLoading.showToast("Select Category");
+            return;
+          }
+
+          if (controller.branchController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Branch / Territory");
+            return;
+          }
+
+          if (controller.descController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Business Description");
+            return;
+          }
+
+          if (controller.ownerImageFile == null) {
+            EasyLoading.showToast("Upload Owner Image");
+            return;
+          }
+
+          if (controller.ownerController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Owner / Company Name");
+            return;
+          }
+
+          if (controller.mobileController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Mobile Number");
+            return;
+          }
+
+          if (controller.mobileController.text.length != 10) {
+            EasyLoading.showToast("Enter valid Mobile Number");
+            return;
+          }
+
+          if (controller.emailController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Business Email");
+            return;
+          }
+
+          if (!GetUtils.isEmail(controller.emailController.text.trim())) {
+            EasyLoading.showToast("Enter valid Email");
+            return;
+          }
+
+
           setState(() {
             currentStep = 2;
           });
-        })
+        }),
       ],
     );
   }
@@ -297,24 +376,56 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
-        const Text("Franchises",
+        const Text("Financials",
             style: TextStyle(color: Colors.white70)),
+        const SizedBox(height: 10),
+
+        Text(
+          "Provide the financial requirements for this \nfranchise listing.",
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            letterSpacing: 1,
+          ),
+        ),
+
 
         const SizedBox(height: 15),
 
-        _buildTextField("Total Investment"),
+        _buildTextField("Total Investment",controller: controller.investmentController),
         const SizedBox(height: 15),
-        _buildTextField("Franchise Fee"),
+        _buildTextField("Franchise Fee",controller: controller.feeController),
         const SizedBox(height: 15),
-        _buildTextField("Liquid Capital Required"),
+        _buildTextField("Liquid Capital Required",controller: controller.capitalController),
 
         const SizedBox(height: 30),
 
         _buildButton("Next Step", () {
+          if (controller.investmentController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Total Investment");
+            return;
+          }
+
+          if (controller.feeController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Franchise Fee");
+            return;
+          }
+
+          if (controller.capitalController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Liquid Capital Required");
+            return;
+          }
+
           setState(() {
             currentStep = 3;
           });
-        })
+        }),
       ],
     );
   }
@@ -328,19 +439,38 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
         const Text("Verification Details",
             style: TextStyle(color: Colors.white70)),
+        const SizedBox(height: 10),
+
+        Text(
+          "Your business information and upload the \nrequried legal documents to complete your \nlisting.",
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 12,
+            letterSpacing: 1,
+          ),
+        ),
+
 
         const SizedBox(height: 15),
 
-        _buildUploadBox("Upload Business Documents"),
+        _buildUploadBox("Upload Business Documents", "gov"),
         const SizedBox(height: 15),
-        _buildUploadBox("Upload Photo ID"),
+        _buildUploadBox("Upload Photo ID", "license"),
 
         const SizedBox(height: 30),
 
         _buildButton("Save & Publish", () {
-          setState(() {
-            Get.to(ActivateFranchiseScreen());
-          });
+          if (controller.govIdFile == null) {
+            EasyLoading.showToast("Upload Business Document");
+            return;
+          }
+
+          if (controller.licenseFile == null) {
+            EasyLoading.showToast("Upload Photo ID");
+            return;
+          }
+
+          controller.addFranchise();
         })
       ],
     );
@@ -350,7 +480,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
 
   Widget _buildDropdown() {
-    return Container(
+    return Obx(() => Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: const Color(0xff3A3A3A),
@@ -359,13 +489,16 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: selectedCategory,
+          value: controller.selectedCategory.value.isEmpty
+              ? null
+              : controller.selectedCategory.value,
           hint: const Text(
             "Select Category",
             style: TextStyle(color: Colors.white54),
           ),
           dropdownColor: const Color(0xff2C2C2C),
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+          icon:
+          const Icon(Icons.keyboard_arrow_down, color: Colors.white),
           isExpanded: true,
           items: [
             "Food",
@@ -383,19 +516,18 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             );
           }).toList(),
           onChanged: (value) {
-            setState(() {
-              selectedCategory = value;
-            });
+            controller.selectedCategory.value = value!;
           },
         ),
       ),
-    );
+    ));
   }
 
   /// COMMON TEXTFIELD
 
-  Widget _buildTextField(String hint, {int maxLines = 1}) {
+  Widget _buildTextField(String hint, {int maxLines = 1,TextEditingController? controller,}) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
@@ -432,9 +564,11 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
   /// UPLOAD BOX
 
-  Widget _buildUploadBox(String text) {
+
+  Widget _buildUploadBox(String text,String type) {
     return GestureDetector(
-      onTap: showImagePickerOptions,
+      key: ValueKey(type),
+      onTap: () => showImagePickerOptions(type),
       child: CustomPaint(
         painter: DottedBorderPainter(),
         child: Container(
@@ -445,7 +579,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             borderRadius: BorderRadius.circular(14),
           ),
           child: Center(
-            child: selectedImage == null
+            child: selectedImages[type]?.path == null
                 ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -471,7 +605,8 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
                 : ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.file(
-                selectedImage!,
+               selectedImages[type]!,
+                key: ValueKey(selectedImages[type]!.path), // ✅ FIX
                 height: 150,
                 width: double.infinity,
                 fit: BoxFit.cover,

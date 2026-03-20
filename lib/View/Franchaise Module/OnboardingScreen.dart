@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.dart';
 import 'package:get/get.dart';
 
 import 'AuthModule/RegisterScreen.dart';
@@ -149,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       borderRadius: BorderRadius.circular(30),
                       onTap: () {
                         if (_currentPage == _pages.length - 1) {
-                       Get.to(Registerscreen ());
+                       Get.to(Loginscreen ());
 
                         } else {
                           _controller.nextPage(

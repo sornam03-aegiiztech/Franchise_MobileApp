@@ -5,11 +5,16 @@ import 'package:franchaise_app/Constants/Colors.dart';
 
 import 'package:get/get.dart';
 
+
+import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
 import 'LoginScreen.dart';
-import 'OTPScreen.dart';
+
 
 class Registerscreen extends StatelessWidget {
-  const Registerscreen({super.key});
+ Registerscreen({super.key});
+
+  final RegisterController registerController =
+  Get.put(RegisterController());
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +72,7 @@ class Registerscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.businessController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -109,6 +115,7 @@ class Registerscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.ownerController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -151,6 +158,7 @@ class Registerscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.mobileController,
                     keyboardType: TextInputType.number,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
@@ -197,6 +205,7 @@ class Registerscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.emailController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -230,7 +239,7 @@ class Registerscreen extends StatelessWidget {
 
                 SizedBox(height: height * 0.012),
 
-                Container(
+                Obx(() => Container(
                   decoration: BoxDecoration(
                     border: Border.all(
                       width: 1,
@@ -239,27 +248,46 @@ class Registerscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
-                    style: const TextStyle(        // ⭐ typed text color
+                    controller: registerController.passwordController,
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
-                    obscureText: true,
+
+                    /// 👇 IMPORTANT
+                    obscureText: registerController.isPasswordHidden.value,
+
                     decoration: InputDecoration(
-                      hintText: 'Minimum 8 characters',
+                      hintText: 'Minimum 6 characters',
                       hintStyle: TextStyle(
                         fontSize: width * 0.03,
                         color: const Color(0xff999999),
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical: height * 0.015),
+                        vertical: height * 0.015,
+                      ),
                       border: InputBorder.none,
+
                       prefixIcon: Icon(
                         Icons.lock,
                         size: width * 0.045,
                         color: const Color(0xff989898),
                       ),
+
+                      /// 👇 EYE ICON
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          registerController.isPasswordHidden.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          registerController.isPasswordHidden.toggle();
+                        },
+                      ),
                     ),
                   ),
-                ),
+                )),
 
                 SizedBox(height: height * 0.025),
 
@@ -282,7 +310,7 @@ class Registerscreen extends StatelessWidget {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Get.to(const Loginscreen());
+                              Get.to(Loginscreen());
                             },
                         ),
                       ],
@@ -290,7 +318,7 @@ class Registerscreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: height * 0.025),
+                SizedBox(height: height * 0.023),
 
                 /// TERMS
                 Center(
@@ -323,12 +351,12 @@ class Registerscreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: height * 0.03),
+                SizedBox(height: height * 0.01),
 
                 /// CONTINUE BUTTON
                 InkWell(
                   onTap: () {
-                    Get.to(OtpScreen(phoneNumber: '',));
+                    registerController.registerUser();
                   },
                   child: Container(
                     width: double.infinity,

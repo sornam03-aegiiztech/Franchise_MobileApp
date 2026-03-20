@@ -2,11 +2,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/Controllers/DistributorModuleController/AuthControllers.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 
 class DistributionLoginscreen extends StatelessWidget {
-  const DistributionLoginscreen({super.key});
+   DistributionLoginscreen({super.key});
+
+  final DistributorLoginController loginController=Get.put(DistributorLoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +62,14 @@ class DistributionLoginscreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(        // ⭐ typed text color
+                        controller: loginController.emailController,
+
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(10),
-                        ],
+
                         decoration: InputDecoration(
-                          hintText:'Enter Your phone number',
+                          hintText:'Enter Your email',
                           hintStyle: TextStyle(
                             fontSize: 12,
                             color:  Color(0xff999999),
@@ -88,7 +90,7 @@ class DistributionLoginscreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: InkWell(
                         onTap: (){
-                          Get.to(());
+                          loginController.DistributorloginUser();
                         },
                         child: Container(
                           width: 300,

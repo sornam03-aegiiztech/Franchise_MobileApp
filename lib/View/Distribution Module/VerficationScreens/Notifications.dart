@@ -106,7 +106,7 @@ class VerificationScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Get.to(BottomBarScreen());
+                    Get.to(DistributionBottomBarScreen());
                   },
                   child: const Text(
                     "Go to BottomScreens",

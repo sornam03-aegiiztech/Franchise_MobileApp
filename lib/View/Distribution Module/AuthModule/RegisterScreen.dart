@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/Controllers/DistributorModuleController/AuthControllers.dart';
 
 import 'package:get/get.dart';
 
@@ -9,7 +10,12 @@ import 'LoginScreen.dart';
 import 'OTPScreen.dart';
 
 class DistributorRegisterscreen extends StatelessWidget {
-  const DistributorRegisterscreen({super.key});
+   DistributorRegisterscreen({super.key});
+
+
+  final DistributorRegisterController registerController=Get.put(DistributorRegisterController());
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class DistributorRegisterscreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: height * 0.025),
+                SizedBox(height: height * 0.015),
 
                 /// BUSINESS NAME
                 Text(
@@ -67,7 +73,8 @@ class DistributorRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
-                    style: const TextStyle(        // ⭐ typed text color
+                    controller: registerController.businessController,
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
                     decoration: InputDecoration(
@@ -109,6 +116,7 @@ class DistributorRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.ownerController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -151,8 +159,9 @@ class DistributorRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.mobileController,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(        // ⭐ typed text color
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
                     inputFormatters: [
@@ -197,7 +206,8 @@ class DistributorRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
-                    style: const TextStyle(        // ⭐ typed text color
+                    controller: registerController.emailController,
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
                     decoration: InputDecoration(
@@ -239,12 +249,13 @@ class DistributorRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
-                    style: const TextStyle(        // ⭐ typed text color
+                    controller: registerController.passwordController,
+                    style: const TextStyle(
                       color: Colors.white,
                     ),
                     obscureText: true,
                     decoration: InputDecoration(
-                      hintText: 'Minimum 8 characters',
+                      hintText: 'Minimum 6 characters',
                       hintStyle: TextStyle(
                         fontSize: width * 0.03,
                         color: const Color(0xff999999),
@@ -282,7 +293,7 @@ class DistributorRegisterscreen extends StatelessWidget {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Get.to(const DistributionLoginscreen());
+                              Get.to( DistributionLoginscreen());
                             },
                         ),
                       ],
@@ -290,7 +301,7 @@ class DistributorRegisterscreen extends StatelessWidget {
                   ),
                 ),
 
-                SizedBox(height: height * 0.025),
+                SizedBox(height: height * 0.012),
 
                 /// TERMS
                 Center(
@@ -328,7 +339,7 @@ class DistributorRegisterscreen extends StatelessWidget {
                 /// CONTINUE BUTTON
                 InkWell(
                   onTap: () {
-                    Get.to(DistributorOtpScreen (phoneNumber: '',));
+                    registerController.DistributorregisterUser();
                   },
                   child: Container(
                     width: double.infinity,

@@ -5,8 +5,12 @@ import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 
+import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
+
 class Loginscreen extends StatelessWidget {
-  const Loginscreen({super.key});
+  Loginscreen({super.key});
+
+  final controller = Get.put(LoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +63,14 @@ class Loginscreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(        // ⭐ typed text color
+                        keyboardType: TextInputType.emailAddress,
+                        controller: controller.emailController,
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(10),
-                        ],
+
                         decoration: InputDecoration(
-                          hintText:'Enter Your phone number',
+                          hintText:'Enter Your Email',
                           hintStyle: TextStyle(
                             fontSize: 12,
                             color:  Color(0xff999999),
@@ -88,7 +91,7 @@ class Loginscreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: InkWell(
                         onTap: (){
-                          Get.to(Loginscreen());
+                          controller.loginUser();
                         },
                         child: Container(
                           width: 300,

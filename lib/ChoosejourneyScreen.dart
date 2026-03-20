@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:franchaise_app/View/Customer%20Module/OnboardingScreen.dart';
+import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/OnboardingScreen.dart';
 
+import 'Appconfig.dart';
 import 'View/Distribution Module/OnboardingScreen.dart';
 
 class ChooseJourneyScreen extends StatelessWidget {
@@ -68,10 +70,21 @@ class ChooseJourneyScreen extends StatelessWidget {
                 description:
                 "Scale your business and list your franchise on our premium marketplace.",
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => OnboardingScreen()),
-                  );
+                  String token = AppConfig.pref.getString("token") ?? "";
+
+                  if (token.isNotEmpty) {
+                    // ✅ Already logged in → go to next screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => Loginscreen()), // or DashboardScreen()
+                    );
+                  } else {
+                    // ❌ No token → go to onboarding
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => OnboardingScreen()),
+                    );
+                  }
                 },
               ),
 

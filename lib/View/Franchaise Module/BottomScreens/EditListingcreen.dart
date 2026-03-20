@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 import 'dart:io';
 
 import 'package:image_picker/image_picker.dart';
+
+import '../../../Appconfig.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/EditListingController.dart';
 
 class EditListingScreen extends StatefulWidget {
   const EditListingScreen({super.key});
@@ -12,20 +17,25 @@ class EditListingScreen extends StatefulWidget {
 }
 
 class _EditListingScreenState extends State<EditListingScreen> {
-
+  final controller = Get.put(EditListingController());
   File? selectedImage;
   final ImagePicker picker = ImagePicker();
 
-  String categoryValue = "Food Industry";
+
+
 
   /// PICK IMAGE
   Future pickImage(ImageSource source) async {
     final picked = await picker.pickImage(source: source);
 
     if (picked != null) {
+      File file = File(picked.path);
+
       setState(() {
-        selectedImage = File(picked.path);
+        selectedImage = file;
       });
+
+      controller.selectedImageFile = file; // 🔥 ADD THIS
     }
   }
 
@@ -62,6 +72,12 @@ class _EditListingScreenState extends State<EditListingScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    controller.getFranchiseDetails();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     final width = MediaQuery.of(context).size.width;
@@ -82,198 +98,226 @@ class _EditListingScreenState extends State<EditListingScreen> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
 
-            /// IMAGE SECTION
-            Stack(
-              children: [
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
 
-                Container(
-                  height: 160,
-                  width: width,
-                  decoration: BoxDecoration(
+              /// IMAGE SECTION
+              Stack(
+                children: [
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                      image: selectedImage != null
-                          ? FileImage(selectedImage!)
-                          : const AssetImage("assets/images/applogo.png")
-                      as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+                    child: SizedBox(
+                      height: 160,
+                      width: width,
+                      child: Builder(
+                        builder: (context) {
+                          /// ✅ FINAL IMAGE URL
+                          String finalImageUrl = controller.imageUrl.value.isNotEmpty
+                              ? "${AppConfig.imageURL}${controller.imageUrl.value}"
+                              : "";
 
-                Container(
-                  height: 160,
-                  width: width,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black.withOpacity(0.4),
-                  ),
-                ),
+                          print("IMAGE NAME → ${controller.imageUrl.value}");
+                          print("FINAL IMAGE URL → $finalImageUrl");
 
-                /// CHANGE IMAGE BUTTON
-                Positioned.fill(
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: showImageOption,
-                      child:  Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white
-                            ),
-                            child: Icon(Icons.camera_alt_outlined,
-                                color: Colors.black, size: 24),
-                          ),
-
-                          SizedBox(height: 10),
-
-                          Text(
-                            "Change Image",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14),
-                          )
-                        ],
+                          /// ✅ IMAGE LOGIC
+                          if (selectedImage != null) {
+                            return Image.file(
+                              selectedImage!,
+                              fit: BoxFit.cover,
+                            );
+                          } else if (finalImageUrl.isNotEmpty) {
+                            return Image.network(
+                              finalImageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                print("❌ IMAGE LOAD ERROR → $error");
+                                return Image.asset(
+                                  "assets/images/applogo.png",
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            );
+                          } else {
+                            return Image.asset(
+                              "assets/images/applogo.png",
+                              fit: BoxFit.cover,
+                            );
+                          }
+                        },
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
 
-            const SizedBox(height: 20),
+                  /// 🔲 Dark overlay
+                  Container(
+                    height: 160,
+                    width: width,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.black.withOpacity(0.4),
+                    ),
+                  ),
 
-            /// CARD CONTAINER
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xff3F3F3F),
-                borderRadius: BorderRadius.circular(20),
+                  /// 📷 Change Image Button
+                  Positioned.fill(
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: showImageOption,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: Icon(
+                                Icons.camera_alt_outlined,
+                                color: Colors.black,
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              "Change Image",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Column(
-                children: [
 
-                  _buildField(
+              const SizedBox(height: 20),
+
+              /// CARD CONTAINER
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xff3F3F3F),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+
+                    _buildField(
                       label: "Brand Name",
-                      hint: "EcoClean Solution"
-                  ),
+                      controller: controller.brandController,
+                    ),
 
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
 
-                  _buildDropdown(),
+                    _buildDropdown(),
 
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
 
-                  _buildDescription(),
-                ],
+                    _buildDescription(),
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            /// INVESTMENT CARD
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xff3F3F3F),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
+              /// INVESTMENT CARD
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xff3F3F3F),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
 
-                  _buildField(
+                    _buildField(
                       label: "Total Investment",
-                      hint: "₹100k - ₹200k"
-                  ),
+                      controller: controller.investController,
+                    ),
 
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
 
-                  _buildField(
+                    _buildField(
                       label: "Franchise Fee",
-                      hint: "₹50,000"
-                  ),
+                      controller: controller.feeController,
+                    ),
 
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
 
-                  _buildField(
+                    _buildField(
                       label: "Liquid Capital Required",
-                      hint: "₹50,000"
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            /// UPDATE BUTTON
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xffff4d4d),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  "Update Listing",
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,color: Colors.white),
+                      controller: controller.capitalController,
+                    ),
+                  ],
                 ),
               ),
-            )
-          ],
-        ),
+
+              const SizedBox(height: 30),
+
+              /// UPDATE BUTTON
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffff4d4d),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    controller.updateFranchise(
+                      categoryValue: controller.category.value,
+                    );
+                  },
+                  child: const Text(
+                    "Update Listing",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      }
       ),
-    );
+      );
+
   }
 
   /// TEXT FIELD
-  Widget _buildField({required String label, required String hint}) {
+  Widget _buildField({
+    required String label,
+    required TextEditingController controller,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70),
-        ),
-
+        Text(label, style: const TextStyle(color: Colors.white70)),
         const SizedBox(height: 6),
 
         TextField(
+          controller: controller,
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(color: Colors.white38),
-
             filled: true,
             fillColor: const Color(0xff3a3a3a),
-
-            contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 14),
-
-            enabledBorder: OutlineInputBorder(
+            border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.white),  // WHITE BORDER
-            ),
-
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(color: Colors.white),
             ),
           ),
         )
@@ -283,10 +327,11 @@ class _EditListingScreenState extends State<EditListingScreen> {
 
   /// DROPDOWN
   Widget _buildDropdown() {
+    final List<String> categories = ["Food Industry", "Retail","Education", "Healthcare", "Technology"];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         const Text(
           "Business Category",
           style: TextStyle(color: Colors.white70),
@@ -295,7 +340,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
         const SizedBox(height: 6),
 
         Container(
-          width: double.infinity, // WIDTH INCREASE
+          width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xff3a3a3a),
@@ -303,31 +348,38 @@ class _EditListingScreenState extends State<EditListingScreen> {
             border: Border.all(color: Colors.white),
           ),
           child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              dropdownColor: const Color(0xff3a3a3a),
-              value: categoryValue,
-              isExpanded: true,
+            child: Obx(() {
+              return DropdownButton<String>(
+                dropdownColor: const Color(0xff3a3a3a),
 
-              items: const [
-                DropdownMenuItem(
-                    value: "Food Industry",
-                    child: Text("Food Industry",
-                        style: TextStyle(color: Colors.white))),
+                /// ✅ SAFE VALUE (important)
+                value: categories.contains(controller.category.value)
+                    ? controller.category.value
+                    : categories.first,
 
-                DropdownMenuItem(
-                    value: "Retail",
-                    child: Text("Retail",
-                        style: TextStyle(color: Colors.white))),
-              ],
+                isExpanded: true,
 
-              onChanged: (value) {
-                setState(() {
-                  categoryValue = value!;
-                });
-              },
-            ),
+                /// ✅ DYNAMIC ITEMS (no const)
+                items: categories.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                }).toList(),
+
+                /// ✅ UPDATE VALUE
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.category.value = value;
+                  }
+                },
+              );
+            }),
           ),
-        )
+        ),
       ],
     );
   }
@@ -346,6 +398,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
         const SizedBox(height: 6),
 
         TextField(
+          controller: controller.descController,
           maxLines: 4,
           style: const TextStyle(color: Colors.white),
 

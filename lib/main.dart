@@ -2,15 +2,21 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 
+import 'Appconfig.dart';
+import 'Controllers/FranchiseModuleAuthControllers/ProfileController.dart';
+import 'View/Distribution Module/VerficationScreens/DistributorDetailsScreen.dart';
 import 'View/SplashScreen.dart';
 
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.init();
   HttpOverrides.global = DevHttpOverrides();
   configLoading();
   runApp(const MyApp());

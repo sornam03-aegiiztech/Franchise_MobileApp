@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:franchaise_app/Controllers/FranchiseModuleAuthControllers/DashboardController.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+
+import '../../../Controllers/FranchiseModuleAuthControllers/ProfileController.dart';
 
 class DashboardScreen extends StatelessWidget {
   DashboardScreen({super.key});
 
   final ListingController controller = Get.put(ListingController());
+  final FranchiseDashboardController dashboardController=Get.put(FranchiseDashboardController());
+  final profilecontroller = Get.put(FranchiseProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -19,34 +24,37 @@ class DashboardScreen extends StatelessWidget {
             children: [
 
               /// Top Profile Section
-              Row(
+              Obx(() => Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 25,
-                    backgroundImage: AssetImage("assets/images/profile.png"),
+                    backgroundImage: profilecontroller.profileImage.value.isNotEmpty
+                        ? NetworkImage(profilecontroller.profileImage.value)
+                        : const AssetImage("assets/images/profile.png")
+                    as ImageProvider,
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff2C2C2E),
+                    decoration: const BoxDecoration(
+                      color: Color(0xff2C2C2E),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.notifications_none,
                         color: Colors.white),
                   )
                 ],
-              ),
+              )),
 
               const SizedBox(height: 15),
 
-              const Text(
-                "Welcome Guhan,",
-                style: TextStyle(
+              Obx(() => Text(
+                "Welcome ${profilecontroller.ownerName.value},",
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w600),
-              ),
+              )),
 
               const SizedBox(height: 5),
 
@@ -165,23 +173,27 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Obx(() => Column(
                         children: [
-                          Icon(Icons.bar_chart, color: Colors.white),
-                          SizedBox(height: 10),
-                          Text("Total Content Views",
+                          const Icon(Icons.bar_chart, color: Colors.white),
+                          const SizedBox(height: 10),
+                          const Text("Total Content Views",
                               style: TextStyle(color: Colors.white70)),
-                          SizedBox(height: 5),
-                          Text("30",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 5),
+                          Text(
+                            dashboardController.totalContactView.value.toString(),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
-                      ),
+                      )),
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(16),
@@ -191,20 +203,22 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Obx(() => Column(
                         children: [
-                          Icon(Icons.remove_red_eye, color: Colors.white),
-                          SizedBox(height: 10),
-                          Text("Profile Views",
+                          const Icon(Icons.remove_red_eye, color: Colors.white),
+                          const SizedBox(height: 10),
+                          const Text("Profile Views",
                               style: TextStyle(color: Colors.white70)),
-                          SizedBox(height: 5),
-                          Text("8.5k",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 5),
+                          Text(
+                            dashboardController.profileView.value.toString(),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
-                      ),
+                      )),
                     ),
                   ),
                 ],

@@ -237,8 +237,8 @@ class BottomController extends GetxController {
   }
 }
 
-class BottomBarScreen extends StatelessWidget {
-  BottomBarScreen({super.key});
+class DistributionBottomBarScreen extends StatelessWidget {
+  DistributionBottomBarScreen({super.key});
 
   final BottomController controller = Get.put(BottomController());
 

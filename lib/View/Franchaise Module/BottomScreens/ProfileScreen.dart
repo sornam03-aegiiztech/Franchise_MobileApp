@@ -3,13 +3,17 @@ import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.d
 import 'package:franchaise_app/View/Franchaise%20Module/BottomScreens/SubscriptionScreen.dart';
 import 'package:get/get.dart';
 
+import '../../../Appconfig.dart';
 import '../../../Constants/Colors.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/ProfileController.dart';
 import '../ProfileModule/EditProfileScreen.dart';
 
 
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+ ProfileScreen({super.key});
+ final controller = Get.put(FranchiseProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -60,17 +64,19 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 30),
 
                   /// Profile Image
-                  Center(
+                  Obx(() => Center(
                     child: Column(
                       children: [
 
                         Stack(
                           children: [
 
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 48,
-                              backgroundImage:
-                              AssetImage("assets/images/profile.png"),
+                              backgroundImage: controller.profileImage.value.isNotEmpty
+                                  ? NetworkImage(controller.profileImage.value)
+                                  : const AssetImage("assets/images/profile.png")
+                              as ImageProvider,
                             ),
 
                             Positioned(
@@ -82,9 +88,7 @@ class ProfileScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white,
-                                      width: 2),
+                                  border: Border.all(color: Colors.white, width: 2),
                                 ),
                               ),
                             )
@@ -93,9 +97,10 @@ class ProfileScreen extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        const Text(
-                          "Guhan",
-                          style: TextStyle(
+                        /// OWNER NAME
+                        Text(
+                          controller.ownerName.value,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.w600),
@@ -103,14 +108,14 @@ class ProfileScreen extends StatelessWidget {
 
                         const SizedBox(height: 4),
 
-                        const Text(
-                          "EcoClean Co.",
-                          style: TextStyle(
-                              color: Colors.white54),
+                        /// BUSINESS NAME
+                        Text(
+                          controller.businessName.value,
+                          style: const TextStyle(color: Colors.white54),
                         )
                       ],
                     ),
-                  ),
+                  )),
 
                   const SizedBox(height: 30),
 
@@ -237,13 +242,19 @@ class ProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
 
+                await AppConfig.pref.clear(); // clear saved data
 
-                Get.offAll(Loginscreen());
+                Get.delete<LoginController>(); // reset controller
+
+                Get.offAll(() => Loginscreen()); // navigate
 
               },
-              child: const Text("Logout",style: TextStyle(color: Colors.white),),
+              child: const Text(
+                "Logout",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
 
           ],

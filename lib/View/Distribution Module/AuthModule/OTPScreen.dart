@@ -1,18 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:franchaise_app/Controllers/DistributorModuleController/AuthControllers.dart';
 
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
-import '../VerficationScreens/FranchiseDetailsScreen.dart';
+import '../../../Appconfig.dart';
+import '../VerficationScreens/DistributorDetailsScreen.dart';
 
 
 
 
 class DistributorOtpScreen extends StatefulWidget {
-  final String phoneNumber;
+  final String email;
 
-  const DistributorOtpScreen ({super.key, required this.phoneNumber});
+  const DistributorOtpScreen ({super.key, required this.email});
 
   @override
   State<DistributorOtpScreen > createState() => _DistributorOtpScreenState();
@@ -20,6 +22,7 @@ class DistributorOtpScreen extends StatefulWidget {
 
 class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
   TextEditingController otpController = TextEditingController();
+ final DistributorOtpController distributorOtpController=Get.put(DistributorOtpController());
 
   int secondsRemaining = 30;
   Timer? timer;
@@ -93,14 +96,14 @@ class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
               const SizedBox(height: 8),
 
               const Text(
-                "We've sent 4-digit code to",
+                "We've sent 6-digit code to",
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
 
               const SizedBox(height: 4),
 
               Text(
-                widget.phoneNumber,
+                widget.email,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -112,7 +115,7 @@ class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
               /// PIN Code Field
               PinCodeTextField(
                 appContext: context,
-                length: 4,
+                length: 6,
                 controller: otpController,
                 keyboardType: TextInputType.number,
                 textStyle: const TextStyle(
@@ -143,8 +146,12 @@ class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
                   ),
                   secondsRemaining == 0
                       ? GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       startTimer();
+                      await AppConfig.httpPost("send_otp", {
+                        "email": widget.email,
+                        "role": "Distributor",
+                      });
                     },
                     child: const Text(
                       "Resend",
@@ -174,7 +181,10 @@ class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
                     ),
                   ),
                   onPressed: () {
-                    Get.to(FranchiseDetailsScreen());
+                    distributorOtpController.DistributorverifyOtp(
+                      email: widget.email,
+                      otp: otpController.text,
+                    );
                   },
                   child: const Text(
                     "Continue",
