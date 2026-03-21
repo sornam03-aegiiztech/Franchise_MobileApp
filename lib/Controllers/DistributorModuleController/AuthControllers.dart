@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:franchaise_app/View/Distribution%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 import '../../Appconfig.dart';
 import '../../View/Distribution Module/AuthModule/OTPScreen.dart';
@@ -311,7 +312,7 @@ class DistributorLoginController extends GetxController {
       }
 
 
-      Get.offAll(() => BottomBarScreen());
+      Get.offAll(() => DistributionBottomBarScreen());
 
     } catch (e) {
       EasyLoading.dismiss();

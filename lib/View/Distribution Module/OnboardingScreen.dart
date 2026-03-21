@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/View/Distribution%20Module/AuthModule/LoginScreen.dart';
 import 'package:get/get.dart';
 
 import 'AuthModule/RegisterScreen.dart';
@@ -71,7 +72,7 @@ class _DistributionOnboardingScreenState extends State<DistributionOnboardingScr
                               padding: const EdgeInsets.only(left: 250.0),
                               child: InkWell(
                                 onTap: (){
-                                  Get.to(DistributorRegisterscreen());
+                                  Get.to(DistributionLoginscreen());
                                 },
                                 child: Text(
                                   'Skip',
@@ -149,7 +150,7 @@ class _DistributionOnboardingScreenState extends State<DistributionOnboardingScr
                       borderRadius: BorderRadius.circular(30),
                       onTap: () {
                         if (_currentPage == _pages.length - 1) {
-                       Get.to(DistributorRegisterscreen());
+                       Get.to(DistributionLoginscreen());
 
                         } else {
                           _controller.nextPage(

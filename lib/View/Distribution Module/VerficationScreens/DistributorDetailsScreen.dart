@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui' as BorderType;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -67,6 +69,118 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
   int currentStep = 1; // Change 1,2,3 for different screens
   String? selectedCategory;
+
+  bool validateStep1() {
+    if (brandLogo == null) {
+      EasyLoading.showToast("Upload Brand Logo");
+      return false;
+    }
+
+    if (distributorDetailsController.brandNameCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Brand Name");
+      return false;
+    }
+
+    if (selectedCategory == null || selectedCategory!.isEmpty) {
+      EasyLoading.showToast("Select Category");
+      return false;
+    }
+
+    if (distributorDetailsController.territoryCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Territory");
+      return false;
+    }
+
+    if (distributorDetailsController.unitsCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Units");
+      return false;
+    }
+
+    if (distributorDetailsController.daysCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Days");
+      return false;
+    }
+
+    if (distributorDetailsController.descCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Business Description");
+      return false;
+    }
+
+    return true;
+  }
+
+  bool validateStep2() {
+    if (ownerImage == null) {
+      EasyLoading.showToast("Upload Owner Image");
+      return false;
+    }
+
+    if (distributorDetailsController.companyCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Company Name");
+      return false;
+    }
+
+    if (distributorDetailsController.mobileCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Mobile Number");
+      return false;
+    }
+
+    if (distributorDetailsController.mobileCtrl.text.length != 10) {
+      EasyLoading.showToast("Enter valid Mobile Number");
+      return false;
+    }
+
+    if (!GetUtils.isEmail(distributorDetailsController.emailCtrl.text)) {
+      EasyLoading.showToast("Enter valid Email");
+      return false;
+    }
+
+    if (distributorDetailsController.addressCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter Address");
+      return false;
+    }
+
+    if (distributorDetailsController.cityCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter City");
+      return false;
+    }
+
+    if (distributorDetailsController.postalCtrl.text.length !=6) {
+      EasyLoading.showToast("Enter Valid Postal Code");
+      return false;
+    }
+
+    return true;
+  }
+
+  bool validateStep3() {
+    if (distributorDetailsController.idNumberCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter ID Number");
+      return false;
+    }
+
+    if (frontDoc == null) {
+      EasyLoading.showToast("Upload Front Document");
+      return false;
+    }
+
+    if (backDoc == null) {
+      EasyLoading.showToast("Upload Back Document");
+      return false;
+    }
+
+    if (distributorDetailsController.gstCtrl.text.isEmpty) {
+      EasyLoading.showToast("Enter GST Number");
+      return false;
+    }
+
+    if (document == null) {
+      EasyLoading.showToast("Upload Document");
+      return false;
+    }
+
+    return true;
+  }
 
 
   @override
@@ -323,9 +437,11 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: 10.0),
           child: _buildButton("Next Step", () {
-            setState(() {
-              currentStep = 2;
-            });
+            if (validateStep1()) {
+              setState(() {
+                currentStep = 2;
+              });
+            }
           }),
         )
       ],
@@ -370,7 +486,10 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
             children: [
               _buildTextField("Owner / Company Name", "Enter legal entity name",controller: distributorDetailsController.companyCtrl),
               const SizedBox(height: 12),
-              _buildTextField("Mobile Number", "+91 00000-00000",controller: distributorDetailsController.mobileCtrl),
+              _buildTextField("Mobile Number", "+91 00000-00000",controller: distributorDetailsController.mobileCtrl,keyboardType: TextInputType.phone,inputFormatters: [
+                LengthLimitingTextInputFormatter(10),
+                FilteringTextInputFormatter.digitsOnly,
+              ]),
               const SizedBox(height: 12),
               _buildTextField("Business Email", "example@gmail.com",controller: distributorDetailsController.emailCtrl),
             ],
@@ -394,7 +513,10 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
               const SizedBox(height: 12),
               _buildTextField("City", "e.g. Coimbatore",controller: distributorDetailsController.cityCtrl),
               const SizedBox(height: 12),
-              _buildTextField("Postal Code", "e.g. 632221",controller: distributorDetailsController.postalCtrl),
+              _buildTextField("Postal Code", "e.g. 632221",controller: distributorDetailsController.postalCtrl,keyboardType: TextInputType.number,inputFormatters: [
+                LengthLimitingTextInputFormatter(6),
+                FilteringTextInputFormatter.digitsOnly,
+              ]),
             ],
           ),
 
@@ -402,9 +524,11 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
           /// 🔹 BUTTON
           _buildButton("Next Step", () {
-            setState(() {
-              currentStep = 3;
-            });
+            if (validateStep2()) {
+              setState(() {
+                currentStep = 3;
+              });
+            }
           }),
         ],
       ),
@@ -485,36 +609,38 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
           const SizedBox(height: 25),
 
           /// 🔹 BUTTON
-      _buildButton("Save & Publish", () {
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: _buildButton("Save & Publish", () {
+              if (validateStep3()) {
+                distributorDetailsController.addDistributor(
+                  brandLogo: brandLogo,
+                  ownerImage: ownerImage,
+                  frontDoc: frontDoc,
+                  backDoc: backDoc,
+                  document: document,
 
-        distributorDetailsController.addDistributor(
+                  brandName: distributorDetailsController.brandNameCtrl.text,
+                  category: selectedCategory ?? "",
+                  territory: distributorDetailsController.territoryCtrl.text,
+                  units: distributorDetailsController.unitsCtrl.text,
+                  days: distributorDetailsController.daysCtrl.text,
+                  description: distributorDetailsController.descCtrl.text,
 
-          brandLogo: brandLogo,
-          ownerImage: ownerImage,
-          frontDoc: frontDoc,
-          backDoc: backDoc,
-          document: document,
+                  companyName: distributorDetailsController.companyCtrl.text,
+                  mobile: distributorDetailsController.mobileCtrl.text,
+                  email: distributorDetailsController.emailCtrl.text,
+                  city: distributorDetailsController.cityCtrl.text,
+                  address: distributorDetailsController.addressCtrl.text,
+                  postalCode: distributorDetailsController.postalCtrl.text,
 
-          brandName: distributorDetailsController.brandNameCtrl.text,
-          category: selectedCategory ?? "",
-          territory: distributorDetailsController.territoryCtrl.text,
-          units: distributorDetailsController.unitsCtrl.text,
-          days: distributorDetailsController.daysCtrl.text,
-          description: distributorDetailsController.descCtrl.text,
-
-          companyName: distributorDetailsController.companyCtrl.text,
-          mobile: distributorDetailsController.mobileCtrl.text,
-          email: distributorDetailsController.emailCtrl.text,
-          city: distributorDetailsController.cityCtrl.text,
-          address: distributorDetailsController.addressCtrl.text,
-          postalCode: distributorDetailsController.postalCtrl.text,
-
-          idType: "Aadhaar Card",
-          idNumber: distributorDetailsController.idNumberCtrl.text,
-          gst: distributorDetailsController.gstCtrl.text,
-        );
-
-      }),
+                  idType: "Aadhaar Card",
+                  idNumber: distributorDetailsController.idNumberCtrl.text,
+                  gst: distributorDetailsController.gstCtrl.text,
+                );
+              }
+            }),
+          ),
         ],
       ),
     );
@@ -759,7 +885,8 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
   /// COMMON TEXTFIELD
 
-  Widget _buildTextField(String label, String hint, {int maxLines = 1,TextEditingController? controller,}) {
+  Widget _buildTextField(String label, String hint, {int maxLines = 1,TextEditingController? controller,TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -780,6 +907,8 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
         TextField(
           controller: controller,
           maxLines: maxLines,
+          keyboardType: keyboardType ?? TextInputType.text,
+          inputFormatters: inputFormatters,
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: hint,

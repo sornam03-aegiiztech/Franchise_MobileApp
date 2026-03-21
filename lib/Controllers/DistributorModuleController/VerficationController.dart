@@ -25,6 +25,8 @@ class DistributorDetailsController extends GetxController {
   final idNumberCtrl = TextEditingController();
   final gstCtrl = TextEditingController();
 
+
+
   Future<void> addDistributor({
     File? brandLogo,
     File? ownerImage,

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
-class DashboardScreen extends StatelessWidget {
-  DashboardScreen({super.key});
+import '../../../Controllers/DistributorModuleController/DashboardController.dart';
+
+class DistributionDashboardScreen extends StatelessWidget {
+  DistributionDashboardScreen({super.key});
 
   final ListingController controller = Get.put(ListingController());
+  final DistributorDashboardController dashboardController=Get.put(DistributorDashboardController());
 
   @override
   Widget build(BuildContext context) {
@@ -165,23 +168,27 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Obx(() => Column(
                         children: [
-                          Icon(Icons.bar_chart, color: Colors.white),
-                          SizedBox(height: 10),
-                          Text("Total Content Views",
+                          const Icon(Icons.bar_chart, color: Colors.white),
+                          const SizedBox(height: 10),
+                          const Text("Total Content Views",
                               style: TextStyle(color: Colors.white70)),
-                          SizedBox(height: 5),
-                          Text("30",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 5),
+                          Text(
+                            dashboardController.totalContactView.value.toString(),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
-                      ),
+                      )),
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(16),
@@ -191,20 +198,22 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Column(
+                      child: Obx(() => Column(
                         children: [
-                          Icon(Icons.remove_red_eye, color: Colors.white),
-                          SizedBox(height: 10),
-                          Text("Profile Views",
+                          const Icon(Icons.remove_red_eye, color: Colors.white),
+                          const SizedBox(height: 10),
+                          const Text("Profile Views",
                               style: TextStyle(color: Colors.white70)),
-                          SizedBox(height: 5),
-                          Text("8.5k",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 5),
+                          Text(
+                            dashboardController.profileView.value.toString(),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
-                      ),
+                      )),
                     ),
                   ),
                 ],

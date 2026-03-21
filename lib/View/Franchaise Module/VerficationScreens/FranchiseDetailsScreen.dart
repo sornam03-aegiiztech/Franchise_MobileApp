@@ -2,6 +2,7 @@ import 'dart:io';
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -286,7 +287,15 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
         const SizedBox(height: 15),
         _buildTextField("Owner / Company Name",controller: controller.ownerController),
         const SizedBox(height: 15),
-        _buildTextField("Mobile Number",controller: controller.mobileController),
+        _buildTextField(
+          "Mobile Number",
+          controller: controller.mobileController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ],
+        ),
         const SizedBox(height: 15),
         _buildTextField("Business Email",controller: controller.emailController),
 
@@ -525,10 +534,13 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
   /// COMMON TEXTFIELD
 
-  Widget _buildTextField(String hint, {int maxLines = 1,TextEditingController? controller,}) {
+  Widget _buildTextField(String hint, {int maxLines = 1,TextEditingController? controller,TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters}) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: keyboardType ?? TextInputType.text, // 👈 IMPORTANT
+      inputFormatters: inputFormatters,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,

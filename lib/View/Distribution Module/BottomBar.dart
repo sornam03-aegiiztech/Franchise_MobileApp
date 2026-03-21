@@ -243,10 +243,10 @@ class DistributionBottomBarScreen extends StatelessWidget {
   final BottomController controller = Get.put(BottomController());
 
   final pages = [
-    DashboardScreen(),
-    SubscriptionScreen(),
-    EditListingScreen(),
-    ProfileScreen(),
+    DistributionDashboardScreen(),
+    DistributorSubscriptionScreen(),
+    DistributionEditListingScreen(),
+    DistributionProfileScreen(),
   ];
 
   final icons = [

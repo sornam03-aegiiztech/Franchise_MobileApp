@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:franchaise_app/View/Customer%20Module/OnboardingScreen.dart';
+import 'package:franchaise_app/View/Distribution%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/OnboardingScreen.dart';
 
@@ -97,10 +98,21 @@ class ChooseJourneyScreen extends StatelessWidget {
                 description:
                 "Manage logistics and supply chains through our dedicated high-performance portal.",
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => DistributionOnboardingScreen()),
-                  );
+                  String token = AppConfig.pref.getString("token") ?? "";
+
+                  if (token.isNotEmpty) {
+                    // ✅ Already logged in → go to next screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => DistributionLoginscreen()),
+                    );
+                  } else {
+                    // ❌ No token → go to onboarding
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => DistributionOnboardingScreen()),
+                    );
+                  }
                 },
               ),
 
