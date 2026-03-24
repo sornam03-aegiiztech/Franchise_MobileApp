@@ -7,7 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../Controllers/DistributorModuleController/VerficationController.dart';
+import '../../../Controllers/DistributorModuleController/DistributorDetailsController.dart';
 import '../Subscriptions/PremiumScreen.dart';
 import 'Notifications.dart';
 
@@ -203,8 +203,14 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: (){
-                      Get.back();
+                    onTap: () {
+                      if (currentStep > 1) {
+                        setState(() {
+                          currentStep--; // 🔥 step back
+                        });
+                      } else {
+                        Get.back(); // 🔥 exit screen
+                      }
                     },
                     child: Container(
                       height: 40,

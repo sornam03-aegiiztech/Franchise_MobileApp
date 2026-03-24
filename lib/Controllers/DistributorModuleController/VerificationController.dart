@@ -1,14 +1,15 @@
 import 'dart:convert';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:franchaise_app/View/Distribution%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:http/http.dart' as http;
 
 import '../../Appconfig.dart';
-import '../../View/Franchaise Module/BottomBar.dart';
 
-class VerificationController extends GetxController {
+
+class DistributorVerificationController extends GetxController {
   RxBool isLoading = false.obs;
 
   RxString message = "".obs;
@@ -24,7 +25,7 @@ class VerificationController extends GetxController {
       String token = AppConfig.pref.getString("token") ?? "";
 
       final response = await http.get(
-        Uri.parse("${AppConfig.baseURL}franchise_verification"),
+        Uri.parse("${AppConfig.baseURL}distibutor_verification"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
@@ -52,11 +53,11 @@ class VerificationController extends GetxController {
             contactStatus.value.toLowerCase() == "approved" &&
             verificationStatus.value.toLowerCase() == "approved") {
 
-          Get.offAll(() => BottomBarScreen());
+          Get.offAll(() => DistributionBottomBarScreen());
         }
 
       } else {
-       EasyLoading.showError( data["message"]);
+        EasyLoading.showError( data["message"]);
       }
     } catch (e) {
       EasyLoading.showError("Something went wrong");

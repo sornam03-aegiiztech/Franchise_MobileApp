@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../../Controllers/FranchiseModuleAuthControllers/SubscriptionController.dart';
 import '../VerficationScreens/Notifications.dart';
 
 class ActivateFranchiseScreen extends StatelessWidget {
-  const ActivateFranchiseScreen({super.key});
+   ActivateFranchiseScreen({super.key});
+
+  final FranchiseSubscriptionController subscriptionController=Get.put(FranchiseSubscriptionController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,16 +115,15 @@ class ActivateFranchiseScreen extends StatelessWidget {
                             /// PRICE
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children:  [
 
-                                Text(
-                                  "₹199",
-                                  style: TextStyle(
+                                Obx(() => Text(
+                                  "₹${subscriptionController.planType.value}",
+                                  style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                ),
+                                )),
 
                                 SizedBox(width: 8),
 
@@ -166,8 +169,8 @@ class ActivateFranchiseScreen extends StatelessWidget {
                             ),
                           ),
 
-                          child: const Text(
-                            "Limited Time Offer",
+                          child:  Text(
+                            subscriptionController.planName.value,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -195,9 +198,18 @@ class ActivateFranchiseScreen extends StatelessWidget {
 
                   const SizedBox(height: 15),
 
-                  _feature("Live Status"),
-                  _feature("Contact Visibility"),
-                  _feature("Verified Badge"),
+                  Obx(() => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: subscriptionController.includedList
+                        .map((e) => Align(
+                      alignment: Alignment.centerLeft,
+                          child: Text(
+                            "• $e",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ))
+                        .toList(),
+                  )),
 
                   const SizedBox(height: 50),
 
@@ -220,12 +232,14 @@ class ActivateFranchiseScreen extends StatelessWidget {
                           builder: (context) => const SuccessDialog(),
                         );
                       },
-                      child: const Text(
-                        "Pay Now ₹199",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,color: Colors.white),
-                      ),
+                      child:  Obx(() => Text(
+                        "Pay Now ₹${subscriptionController.planType.value}",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ))
                     ),
                   ),
 

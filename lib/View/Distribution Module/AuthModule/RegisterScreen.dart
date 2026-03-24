@@ -240,7 +240,7 @@ class DistributorRegisterscreen extends StatelessWidget {
 
                 SizedBox(height: height * 0.012),
 
-                Container(
+                Obx(() => Container(
                   decoration: BoxDecoration(
                     border: Border.all(
                       width: 1,
@@ -253,7 +253,10 @@ class DistributorRegisterscreen extends StatelessWidget {
                     style: const TextStyle(
                       color: Colors.white,
                     ),
-                    obscureText: true,
+
+                    /// 👇 IMPORTANT
+                    obscureText: registerController.isPasswordHidden.value,
+
                     decoration: InputDecoration(
                       hintText: 'Minimum 6 characters',
                       hintStyle: TextStyle(
@@ -261,16 +264,31 @@ class DistributorRegisterscreen extends StatelessWidget {
                         color: const Color(0xff999999),
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical: height * 0.015),
+                        vertical: height * 0.015,
+                      ),
                       border: InputBorder.none,
+
                       prefixIcon: Icon(
                         Icons.lock,
                         size: width * 0.045,
                         color: const Color(0xff989898),
                       ),
+
+                      /// 👇 EYE ICON
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          registerController.isPasswordHidden.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          registerController.isPasswordHidden.toggle();
+                        },
+                      ),
                     ),
                   ),
-                ),
+                )),
 
                 SizedBox(height: height * 0.025),
 

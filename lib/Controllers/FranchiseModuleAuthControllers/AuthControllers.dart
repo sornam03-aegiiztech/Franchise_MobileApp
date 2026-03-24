@@ -6,6 +6,9 @@ import 'package:get/get.dart';
 
 import '../../Appconfig.dart';
 import '../../View/Distribution Module/VerficationScreens/DistributorDetailsScreen.dart';
+import '../../View/Franchaise Module/AuthModule/ForgototpScreen.dart';
+import '../../View/Franchaise Module/AuthModule/LoginScreen.dart';
+import '../../View/Franchaise Module/AuthModule/ResetPasswordScreen.dart';
 import '../../View/Franchaise Module/BottomBar.dart';
 import '../../View/Franchaise Module/VerficationScreens/FranchiseDetailsScreen.dart';
 
@@ -97,6 +100,13 @@ class RegisterController extends GetxController {
           if (response["user_id"] != null) {
             await AppConfig.pref.setString(
                 "user_id", response["user_id"].toString());
+          }
+
+          if (response["token"] != null) {
+            await AppConfig.pref.setString(
+              "token",
+              response["token"].toString(),
+            );
           }
 
           Get.offAll(() => OtpScreen(
@@ -210,7 +220,7 @@ class OtpController extends GetxController {
           }
 
 
-          Get.offAll(FranchiseDetailsScreen());
+          Get.to(FranchiseDetailsScreen());
 
         } else {
 
@@ -230,6 +240,8 @@ class OtpController extends GetxController {
 
 class LoginController extends GetxController {
   var emailController = TextEditingController();
+  var passwordController=TextEditingController();
+  var isPasswordHidden = true.obs;
 
   Future<void> loginUser() async {
     try {
@@ -242,8 +254,10 @@ class LoginController extends GetxController {
 
       final response = await AppConfig.httpPost("login", {
         "email": emailController.text.trim(),
+        "password": passwordController.text.trim(),
         "role": "Franchise",
       });
+      print("LOGIN RESPONSE → $response");
 
       EasyLoading.dismiss();
 
@@ -300,6 +314,188 @@ class LoginController extends GetxController {
 
 
       Get.offAll(() => BottomBarScreen());
+
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError("Error: ${e.toString()}");
+    }
+  }
+}
+
+
+
+
+class ForgotPasswordController extends GetxController {
+  var emailController = TextEditingController();
+
+  Future<void> forgotPassword() async {
+    try {
+      if (!GetUtils.isEmail(emailController.text.trim())) {
+        EasyLoading.showError("Enter valid Email");
+        return;
+      }
+
+      EasyLoading.show(status: "Sending OTP...");
+
+      final response = await AppConfig.httpPost("forgot_password", {
+        "email": emailController.text.trim(),
+      });
+
+      EasyLoading.dismiss();
+
+      if (response == null) {
+        EasyLoading.showError("Server error");
+        return;
+      }
+
+      int status = response["status"] ?? 0;
+      String message = response["message"] ?? "Something went wrong";
+
+      if (status != 200) {
+        EasyLoading.showError(message);
+        return;
+      }
+
+      EasyLoading.showSuccess(message);
+
+      Get.to(() => Forgototpscreen(), arguments: emailController.text.trim());
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError("Error: ${e.toString()}");
+    }
+  }
+}
+
+class ForgotOtpController extends GetxController {
+  var otpController = TextEditingController();
+
+  Future<void> verifyOtp(String email) async {
+    try {
+
+      if (otpController.text.trim().length != 6) {
+        EasyLoading.showError("Enter valid OTP");
+        return;
+      }
+
+
+      EasyLoading.show(status: "Verifying OTP...");
+
+      final response = await AppConfig.httpPost("verify_forgot_otp", {
+        "email": email,
+        "otp": otpController.text.trim(),
+      });
+
+      EasyLoading.dismiss();
+
+
+      if (response == null) {
+        EasyLoading.showError("Server error");
+        return;
+      }
+
+      int status = response["status"] ?? 0;
+      String message = response["message"] ?? "Something went wrong";
+
+
+      if (status != 200) {
+        EasyLoading.showError(message);
+        return;
+      }
+
+
+      EasyLoading.showSuccess(message);
+
+      Get.to(
+            () => Resetpasswordscreen(),
+        arguments: {
+          "email": email,
+          "otp": otpController.text.trim(),
+        },
+      );
+
+
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError("Error: ${e.toString()}");
+    }
+  }
+}
+
+class ResetPasswordController extends GetxController {
+  var passwordController = TextEditingController();
+  var confirmPasswordController = TextEditingController();
+
+  var isPasswordHidden = true.obs;
+  var isConfirmPasswordHidden = true.obs;
+
+  RxBool isValid = false.obs;
+
+  void validatePasswords() {
+    if (passwordController.text.isNotEmpty &&
+        confirmPasswordController.text.isNotEmpty &&
+        passwordController.text == confirmPasswordController.text) {
+      isValid.value = true;
+    } else {
+      isValid.value = false;
+    }
+  }
+
+  Future<void> resetPassword(String email, String otp) async {
+    try {
+      /// 🔍 Validation
+      if (passwordController.text.isEmpty ||
+          confirmPasswordController.text.isEmpty) {
+        EasyLoading.showError("Enter all fields");
+        return;
+      }
+
+      if (passwordController.text != confirmPasswordController.text) {
+        EasyLoading.showError("Passwords do not match");
+        return;
+      }
+
+      if (passwordController.text.length < 6) {
+        EasyLoading.showError("Password must be at least 6 characters");
+        return;
+      }
+
+
+      EasyLoading.show(status: "Resetting Password...");
+
+      final response = await AppConfig.httpPost("reset_password", {
+        "email": email,
+        "otp": otp,
+        "password": passwordController.text.trim(),
+      });
+
+      EasyLoading.dismiss();
+
+
+      if (response == null) {
+        EasyLoading.showError("Server error");
+        return;
+      }
+
+      int status = response["status"] ?? 0;
+      String message = response["message"] ?? "Something went wrong";
+
+
+      if (status != 200) {
+        EasyLoading.showError(message);
+        return;
+      }
+
+
+      EasyLoading.showSuccess(message);
+
+      if (Get.isRegistered<LoginController>()) {
+        final loginController = Get.find<LoginController>();
+        loginController.emailController.clear();
+        loginController.passwordController.clear();
+      }
+
+
+      Get.offAll(() => Loginscreen());
 
     } catch (e) {
       EasyLoading.dismiss();

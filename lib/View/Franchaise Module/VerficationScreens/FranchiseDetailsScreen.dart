@@ -7,7 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../Controllers/FranchiseModuleAuthControllers/VerificationController.dart';
+import '../../../Controllers/FranchiseModuleAuthControllers/FranchiseDetailsController.dart';
 
 
 
@@ -94,8 +94,14 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: (){
-                      Get.back();
+                    onTap: () {
+                      if (currentStep > 1) {
+                        setState(() {
+                          currentStep--; // 🔥 step back
+                        });
+                      } else {
+                        Get.back(); // 🔥 exit screen
+                      }
                     },
                     child: Container(
                       height: 40,

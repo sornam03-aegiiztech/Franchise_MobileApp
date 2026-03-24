@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:franchaise_app/Controllers/DistributorModuleController/AuthControllers.dart';
+import 'package:franchaise_app/View/Distribution%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/BottomScreens/SubscriptionScreen.dart';
 import 'package:get/get.dart';
 
+import '../../../Appconfig.dart';
 import '../../../Constants/Colors.dart';
 import '../ProfileModule/EditProfileScreen.dart';
 
@@ -237,10 +240,14 @@ class DistributionProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
+
+                await AppConfig.pref.clear(); // clear saved data
+
+                Get.delete<DistributorLoginController>(); // reset controller
 
 
-                Get.offAll(Loginscreen());
+                Get.offAll(DistributionLoginscreen());
 
               },
               child: const Text("Logout",style: TextStyle(color: Colors.white),),
