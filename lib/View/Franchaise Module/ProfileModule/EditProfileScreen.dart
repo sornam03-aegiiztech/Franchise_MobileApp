@@ -196,7 +196,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
                 /// NAME
                 _label("Business Name"),
-                _textfield(Icons.person,"Enter Business name",controller.nameTextController),
+                _textfield(Icons.business,"Enter Business name",controller.nameTextController),
 
                 SizedBox(height: height * 0.02),
 

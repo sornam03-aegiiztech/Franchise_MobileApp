@@ -266,11 +266,15 @@ class LoginController extends GetxController {
         return;
       }
 
-      int status = response["status"] ?? 0;
+
+      var status = response["status"];
       String message = response["message"] ?? "Something went wrong";
+      String error = response["error"] ?? "";
+
 
       if (status != 200) {
-        EasyLoading.showError(message);
+        EasyLoading.showError(
+            error.isNotEmpty ? error : message );
         return;
       }
 
@@ -430,10 +434,31 @@ class ResetPasswordController extends GetxController {
 
   RxBool isValid = false.obs;
 
+  RxString passwordError = ''.obs;
+  RxString confirmPasswordError = ''.obs;
+
   void validatePasswords() {
-    if (passwordController.text.isNotEmpty &&
-        confirmPasswordController.text.isNotEmpty &&
-        passwordController.text == confirmPasswordController.text) {
+
+    if (passwordController.text.isEmpty) {
+      passwordError.value = "Enter password";
+    } else if (passwordController.text.length < 6) {
+      passwordError.value = "Minimum 6 characters required";
+    } else {
+      passwordError.value = "";
+    }
+
+
+    if (confirmPasswordController.text.isEmpty) {
+      confirmPasswordError.value = "Enter confirm password";
+    } else if (confirmPasswordController.text != passwordController.text) {
+      confirmPasswordError.value = "Passwords do not match";
+    } else {
+      confirmPasswordError.value = "";
+    }
+
+
+    if (passwordError.value.isEmpty &&
+        confirmPasswordError.value.isEmpty) {
       isValid.value = true;
     } else {
       isValid.value = false;
@@ -443,21 +468,13 @@ class ResetPasswordController extends GetxController {
   Future<void> resetPassword(String email, String otp) async {
     try {
       /// 🔍 Validation
-      if (passwordController.text.isEmpty ||
-          confirmPasswordController.text.isEmpty) {
-        EasyLoading.showError("Enter all fields");
+      validatePasswords();
+
+      if (!isValid.value) {
+        EasyLoading.showError("Fix errors before continuing");
         return;
       }
 
-      if (passwordController.text != confirmPasswordController.text) {
-        EasyLoading.showError("Passwords do not match");
-        return;
-      }
-
-      if (passwordController.text.length < 6) {
-        EasyLoading.showError("Password must be at least 6 characters");
-        return;
-      }
 
 
       EasyLoading.show(status: "Resetting Password...");

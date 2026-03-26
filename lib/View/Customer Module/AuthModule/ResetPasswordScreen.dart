@@ -4,13 +4,14 @@ import 'package:franchaise_app/View/Distribution%20Module/AuthModule/LoginScreen
 import 'package:get/get.dart';
 
 import '../../../Constants/Colors.dart';
+import '../../../Controllers/CustomerModuleController/AuthController.dart';
 import '../../../Controllers/DistributorModuleController/AuthControllers.dart';
 
-class DistributorResetScreen extends StatelessWidget {
-   DistributorResetScreen({super.key});
+class CustomerResetScreen extends StatelessWidget {
+  CustomerResetScreen({super.key});
 
-  final DistributorResetPasswordController controller =
-  Get.put(DistributorResetPasswordController());
+  final CustomerResetPasswordController controller =
+  Get.put(CustomerResetPasswordController());
 
   final String email = Get.arguments['email'] ?? "";
   final String otp = Get.arguments['otp'] ?? "";
@@ -228,7 +229,7 @@ class DistributorResetScreen extends StatelessWidget {
                             return;
                           }
 
-                          controller.DistributorresetPassword(email, otp);
+                          controller.CustomerresetPassword(email, otp);
                         },
                         child: Container(
                           width: 300,

@@ -1,31 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:franchaise_app/View/Customer%20Module/BottomBar.dart';
-
 import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/AuthController.dart';
 
 
-
-
-
-
-class Customerotpscreen extends StatefulWidget {
-  final String email;
-
-  const Customerotpscreen({super.key, required this.email});
+class CustomerForgototpscreen extends StatefulWidget {
+  const CustomerForgototpscreen({super.key});
 
   @override
-  State<Customerotpscreen> createState() => _CustomerotpScreenState();
+  State<CustomerForgototpscreen> createState() => _CustomerForgototpscreenState();
 }
 
-class _CustomerotpScreenState extends State<Customerotpscreen> {
-  TextEditingController otpController = TextEditingController();
-  final CustomerOtpController customerOtpController=Get.put(CustomerOtpController());
-
+class _CustomerForgototpscreenState extends State<CustomerForgototpscreen> {
+  final CustomerForgotOtpController controller = Get.put(CustomerForgotOtpController());
+  final String email = Get.arguments ?? "";
   int secondsRemaining = 30;
   Timer? timer;
 
@@ -51,44 +41,22 @@ class _CustomerotpScreenState extends State<Customerotpscreen> {
   @override
   void dispose() {
     timer?.cancel();
-    otpController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff1E1E1E),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24,vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 24,vertical: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
 
-              /// Back Button
-              Align(
-                alignment: Alignment.centerLeft,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.white, size: 16),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
               /// Title
               const Text(
-                "Verify your number",
+                "Verify your email",
                 style: TextStyle(
                     fontSize: 22,
                     color: Colors.white,
@@ -105,7 +73,7 @@ class _CustomerotpScreenState extends State<Customerotpscreen> {
               const SizedBox(height: 4),
 
               Text(
-                widget.email,
+                email,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -118,7 +86,7 @@ class _CustomerotpScreenState extends State<Customerotpscreen> {
               PinCodeTextField(
                 appContext: context,
                 length: 6,
-                controller: otpController,
+                controller: controller.otpController,
                 keyboardType: TextInputType.number,
                 textStyle: const TextStyle(
                     color: Colors.white,
@@ -150,9 +118,9 @@ class _CustomerotpScreenState extends State<Customerotpscreen> {
                       ? GestureDetector(
                     onTap: () async {
                       startTimer();
-                      await AppConfig.httpPost("send_otp", {
-                        "email": widget.email,
-                        "role": "Customer",
+
+                      await AppConfig.httpPost("forgot_password", {
+                        "email": email,
                       });
                     },
                     child: const Text(
@@ -183,10 +151,7 @@ class _CustomerotpScreenState extends State<Customerotpscreen> {
                     ),
                   ),
                   onPressed: () {
-                    customerOtpController.CustomerverifyOtp(
-                      email: widget.email,
-                      otp: otpController.text,
-                    );
+                    controller.CustomerverifyOtp(email);
                   },
                   child: const Text(
                     "Continue",

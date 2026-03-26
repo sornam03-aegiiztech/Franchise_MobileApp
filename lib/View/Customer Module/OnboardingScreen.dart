@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:get/get.dart';
 
+import 'AuthModule/LoginScreen.dart';
 import 'AuthModule/RegisterScreen.dart';
 
 
@@ -73,7 +74,7 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
                               padding: const EdgeInsets.only(left: 250.0),
                               child: InkWell(
                                 onTap: (){
-                                  Get.to(CustomerRegisterscreen ());
+                                  Get.to(CustomerLoginscreen ());
                                 },
                                 child: Text(
                                   'Skip',
@@ -151,7 +152,7 @@ class _CustomerOnboardingScreenState extends State<CustomerOnboardingScreen> {
                       borderRadius: BorderRadius.circular(30),
                       onTap: () {
                         if (_currentPage == _pages.length - 1) {
-                       Get.to(CustomerRegisterscreen());
+                       Get.to(CustomerLoginscreen());
 
                         } else {
                           _controller.nextPage(

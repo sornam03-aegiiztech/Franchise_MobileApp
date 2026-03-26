@@ -7,6 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../Controllers/CustomerModuleController/DashboardController.dart';
 import '../../../Controllers/FranchiseModuleAuthControllers/FranchiseDetailsController.dart';
 
 
@@ -21,6 +22,8 @@ class FranchiseDetailsScreen extends StatefulWidget {
 
 class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
   final controller = Get.put(FranchiseController());
+  final servicesController = Get.put(ServicesController());
+  final allcontroller = Get.put(AllFranchiseController());
 
   Map<String, File?> selectedImages = {};
 
@@ -495,47 +498,62 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
 
   Widget _buildDropdown() {
-    return Obx(() => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xff3A3A3A),
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: controller.selectedCategory.value.isEmpty
-              ? null
-              : controller.selectedCategory.value,
-          hint: const Text(
-            "Select Category",
-            style: TextStyle(color: Colors.white54),
-          ),
-          dropdownColor: const Color(0xff2C2C2C),
-          icon:
-          const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-          isExpanded: true,
-          items: [
-            "Food",
-            "Retail",
-            "Education",
-            "Healthcare",
-            "Technology"
-          ].map((String value) {
-            return DropdownMenuItem(
-              value: value,
-              child: Text(
-                value,
-                style: const TextStyle(color: Colors.white),
-              ),
-            );
-          }).toList(),
-          onChanged: (value) {
-            controller.selectedCategory.value = value!;
-          },
+    return Obx(() {
+
+      /// 🔥 LOADING
+      if (servicesController.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xff3A3A3A),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(color: Colors.white12),
         ),
-      ),
-    ));
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+
+            /// 🔥 SELECTED VALUE
+            value: controller.selectedCategory.value.isEmpty
+                ? null
+                : controller.selectedCategory.value,
+
+            hint: const Text(
+              "Select Category",
+              style: TextStyle(color: Colors.white54),
+            ),
+
+            dropdownColor: const Color(0xff2C2C2C),
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+            isExpanded: true,
+
+            /// 🔥 API CATEGORY LIST
+            items: servicesController.tabs.map((String value) {
+              return DropdownMenuItem(
+                value: value,
+                child: Text(
+                  value,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            }).toList(),
+
+            /// 🔥 ON CHANGE → API CALL
+            onChanged: (value) {
+
+              controller.selectedCategory.value = value!;
+
+              allcontroller.getFranchises(
+                search: allcontroller.searchText.value,
+                category: value == "All" ? "" : value, // 🔥 important
+              );
+            },
+          ),
+        ),
+      );
+    });
   }
 
   /// COMMON TEXTFIELD

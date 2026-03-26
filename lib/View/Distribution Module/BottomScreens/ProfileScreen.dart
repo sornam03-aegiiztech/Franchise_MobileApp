@@ -7,12 +7,14 @@ import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Constants/Colors.dart';
+import '../../../Controllers/DistributorModuleController/ProfileController.dart';
 import '../ProfileModule/EditProfileScreen.dart';
 
 
 
 class DistributionProfileScreen extends StatelessWidget {
-  const DistributionProfileScreen({super.key});
+   DistributionProfileScreen({super.key});
+  final profilecontroller = Get.put(DistributorProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +72,14 @@ class DistributionProfileScreen extends StatelessWidget {
                         Stack(
                           children: [
 
-                            const CircleAvatar(
-                              radius: 48,
-                              backgroundImage:
-                              AssetImage("assets/images/profile.png"),
-                            ),
+                            Obx(() {
+                              return CircleAvatar(
+                                radius: 48,
+                                backgroundImage: profilecontroller.profileImage.value.isNotEmpty
+                                    ? NetworkImage("${AppConfig.imageURL}${profilecontroller.profileImage.value}")
+                                    : const AssetImage("assets/images/profile.png") as ImageProvider,
+                              );
+                            }),
 
                             Positioned(
                               bottom: 6,
@@ -96,21 +101,24 @@ class DistributionProfileScreen extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        const Text(
-                          "Guhan",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
-                        ),
+                        Obx(() {
+                          return Text(
+                            profilecontroller.ownerName.value,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600),
+                          );
+                        }),
 
                         const SizedBox(height: 4),
 
-                        const Text(
-                          "EcoClean Co.",
-                          style: TextStyle(
-                              color: Colors.white54),
-                        )
+                        Obx(() {
+                          return Text(
+                            profilecontroller.businessName.value,
+                            style: const TextStyle(color: Colors.white54),
+                          );
+                        }),
                       ],
                     ),
                   ),

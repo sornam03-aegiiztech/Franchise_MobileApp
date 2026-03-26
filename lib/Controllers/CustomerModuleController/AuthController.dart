@@ -1,34 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:franchaise_app/View/Distribution%20Module/AuthModule/ForgotPasswordScreen.dart';
-import 'package:franchaise_app/View/Distribution%20Module/AuthModule/ResetPasswordScreen.dart';
-import 'package:franchaise_app/View/Distribution%20Module/BottomBar.dart';
+import 'package:franchaise_app/View/Customer%20Module/AuthModule/LoginScreen.dart';
+import 'package:franchaise_app/View/Customer%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 import '../../Appconfig.dart';
-import '../../View/Distribution Module/AuthModule/ForgotOTPScreen.dart';
-import '../../View/Distribution Module/AuthModule/LoginScreen.dart';
-import '../../View/Distribution Module/AuthModule/OTPScreen.dart';
-import '../../View/Distribution Module/VerficationScreens/DistributorDetailsScreen.dart';
-import '../../View/Franchaise Module/BottomBar.dart';
+import '../../View/Customer Module/AuthModule/CustomerOtpScreen.dart';
+import '../../View/Customer Module/AuthModule/ForgotOTPScreen.dart';
+import '../../View/Customer Module/AuthModule/ResetPasswordScreen.dart';
 
 
-class DistributorRegisterController extends GetxController {
-  final businessController = TextEditingController();
-  final ownerController = TextEditingController();
+
+class CustomerRegisterController extends GetxController {
+
+  final nameController = TextEditingController();
   final mobileController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   var isPasswordHidden = true.obs;
 
-  Future<void> DistributorregisterUser() async {
+  Future<void> CustomerregisterUser() async {
     try {
-      if (businessController.text.isEmpty) {
-        EasyLoading.showError("Enter Business Name");
-        return;
-      }
 
-      if (ownerController.text.isEmpty) {
-        EasyLoading.showError("Enter Owner Name");
+
+      if (nameController.text.isEmpty) {
+        EasyLoading.showError("Enter Full Name");
         return;
       }
 
@@ -56,12 +51,12 @@ class DistributorRegisterController extends GetxController {
       EasyLoading.show(status: "Registering...");
 
       final response = await AppConfig.httpPost("register", {
-        "business_name": businessController.text,
-        "owner_name": ownerController.text,
-        "business_mobile": mobileController.text,
-        "business_email": emailController.text,
+
+        "full_name":nameController.text,
+        "phone": mobileController.text,
+        "email": emailController.text,
         "password": passwordController.text,
-        "role": "Distributor",
+        "role": "Customer",
       });
 
       EasyLoading.dismiss();
@@ -92,8 +87,8 @@ class DistributorRegisterController extends GetxController {
           EasyLoading.showSuccess(message);
 
 
-          await AppConfig.pref.setString("business_name", businessController.text);
-          await AppConfig.pref.setString("owner_name", ownerController.text);
+
+          await AppConfig.pref.setString("name", nameController.text);
           await AppConfig.pref.setString("mobile", mobileController.text);
           await AppConfig.pref.setString("email", emailController.text);
 
@@ -109,13 +104,13 @@ class DistributorRegisterController extends GetxController {
             );
           }
 
-          Get.offAll(() => DistributorOtpScreen(
+          Get.offAll(() => Customerotpscreen(
             email: emailController.text,
           ));
 
           AppConfig.httpPost("send_otp", {
             "email": emailController.text,
-            "role": "Distributor",
+            "role": "Customer",
           }).then((otpResponse) {
             if (otpResponse != null) {
               String otpMsg =
@@ -144,8 +139,8 @@ class DistributorRegisterController extends GetxController {
   }
 
   void clearFields() {
-    businessController.clear();
-    ownerController.clear();
+
+    nameController.clear();
     mobileController.clear();
     emailController.clear();
     passwordController.clear();
@@ -153,8 +148,8 @@ class DistributorRegisterController extends GetxController {
 }
 
 
-class DistributorOtpController extends GetxController {
-  Future<void> DistributorverifyOtp({
+class CustomerOtpController extends GetxController {
+  Future<void> CustomerverifyOtp({
     required String email,
     required String otp,
   }) async {
@@ -164,13 +159,13 @@ class DistributorOtpController extends GetxController {
       final response = await AppConfig.httpPost("verify_otp", {
         "email": email,
         "otp": otp,
-        "role": "Distributor",
+        "role": "Customer",
       });
 
 
       print("========== API CALL ==========");
       print("API NAME   : verify_otp");
-      print("REQUEST    : {email: $email, otp: $otp, role: Distributor}");
+      print("REQUEST    : {email: $email, otp: $otp, role: Customer}");
       print("RESPONSE   : $response");
       print("================================");
 
@@ -211,10 +206,10 @@ class DistributorOtpController extends GetxController {
             }
 
 
-          if (response["user"] != null) {
-            await AppConfig.pref.setString(
-                "user", response["user"].toString());
-          }
+            if (response["user"] != null) {
+              await AppConfig.pref.setString(
+                  "user", response["user"].toString());
+            }
 
             await AppConfig.pref.setString("business_name", user["business_name"] ?? "",);
 
@@ -227,7 +222,7 @@ class DistributorOtpController extends GetxController {
           }
 
 
-          Get.offAll(DistributionDetailsScreen());
+          Get.offAll(CustomerBottomBarScreen());
 
         } else {
 
@@ -245,12 +240,12 @@ class DistributorOtpController extends GetxController {
 
 
 
-class DistributorLoginController extends GetxController {
+class CustomerLoginController extends GetxController {
   var emailController = TextEditingController();
   var passwordController= TextEditingController();
   var isPasswordHidden = true.obs;
 
-  Future<void> DistributorloginUser() async {
+  Future<void> CustomerloginUser() async {
     try {
       if (!GetUtils.isEmail(emailController.text.trim())) {
         EasyLoading.showError("Enter valid Email");
@@ -261,7 +256,7 @@ class DistributorLoginController extends GetxController {
 
       final response = await AppConfig.httpPost("login", {
         "email": emailController.text.trim(),
-        "role": "Distributor",
+        "role": "Customer",
         "password":passwordController.text.trim(),
       });
 
@@ -322,7 +317,7 @@ class DistributorLoginController extends GetxController {
       }
 
 
-      Get.offAll(() => DistributionBottomBarScreen());
+      Get.offAll(() => CustomerBottomBarScreen());
 
     } catch (e) {
       EasyLoading.dismiss();
@@ -333,10 +328,10 @@ class DistributorLoginController extends GetxController {
 
 
 
-class DistributorForgotPasswordController extends GetxController {
+class CustomerForgotPasswordController extends GetxController {
   var emailController = TextEditingController();
 
-  Future<void> DistributorforgotPassword() async {
+  Future<void> CustomerforgotPassword() async {
     try {
       if (!GetUtils.isEmail(emailController.text.trim())) {
         EasyLoading.showError("Enter valid Email");
@@ -366,7 +361,7 @@ class DistributorForgotPasswordController extends GetxController {
 
       EasyLoading.showSuccess(message);
 
-      Get.to(() =>  DistributorForgototpscreen(), arguments: emailController.text.trim());
+      Get.to(() =>  CustomerForgototpscreen(), arguments: emailController.text.trim());
     } catch (e) {
       EasyLoading.dismiss();
       EasyLoading.showError("Error: ${e.toString()}");
@@ -374,10 +369,10 @@ class DistributorForgotPasswordController extends GetxController {
   }
 }
 
-class DistributorForgotOtpController extends GetxController {
+class CustomerForgotOtpController extends GetxController {
   var otpController = TextEditingController();
 
-  Future<void> DistributorverifyOtp(String email) async {
+  Future<void> CustomerverifyOtp(String email) async {
     try {
 
       if (otpController.text.trim().length != 6) {
@@ -414,7 +409,7 @@ class DistributorForgotOtpController extends GetxController {
       EasyLoading.showSuccess(message);
 
       Get.to(
-            () => DistributorResetScreen(),
+            () => CustomerResetScreen(),
         arguments: {
           "email": email,
           "otp": otpController.text.trim(),
@@ -429,7 +424,7 @@ class DistributorForgotOtpController extends GetxController {
   }
 }
 
-class DistributorResetPasswordController extends GetxController {
+class CustomerResetPasswordController extends GetxController {
   var passwordController = TextEditingController();
   var confirmPasswordController = TextEditingController();
 
@@ -470,7 +465,7 @@ class DistributorResetPasswordController extends GetxController {
     }
   }
 
-  Future<void> DistributorresetPassword(String email, String otp) async {
+  Future<void> CustomerresetPassword(String email, String otp) async {
     try{
 
       validatePasswords();
@@ -509,14 +504,14 @@ class DistributorResetPasswordController extends GetxController {
 
       EasyLoading.showSuccess(message);
 
-      if (Get.isRegistered<DistributorLoginController>()) {
-        final loginController = Get.find<DistributorLoginController>();
+      if (Get.isRegistered<CustomerLoginController>()) {
+        final loginController = Get.find<CustomerLoginController>();
         loginController.emailController.clear();
         loginController.passwordController.clear();
       }
 
 
-      Get.offAll(() => DistributionLoginscreen());
+      Get.offAll(() => CustomerLoginscreen());
 
     } catch (e) {
       EasyLoading.dismiss();

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../../../Constants/Colors.dart';
 import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
-import 'ForgototpScreen.dart';
 
 class Forgotpasswordscreen extends StatelessWidget {
   Forgotpasswordscreen({super.key});
@@ -11,58 +10,102 @@ class Forgotpasswordscreen extends StatelessWidget {
   final ForgotPasswordController controller =
   Get.put(ForgotPasswordController());
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: apptheme,
+      appBar: AppBar(
+        backgroundColor: apptheme,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+      ),
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: SingleChildScrollView(
+          child: SingleChildScrollView(
+            child: Form( // ✅ முக்கியம்
+              key: _formKey,
               child: Column(
                 children: [
-                  Image(
-                    image: AssetImage('assets/images/applogo.png'),
-                    height: 75,
-                    width: 75,
-                  ),
-                  SizedBox(height: 10),
+                  Image.asset('assets/images/applogo.png', height: 80),
+
+                  SizedBox(height: 15),
+
                   Text(
                     'Forgot Password',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 20,
                       color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  SizedBox(height: 25),
+                  SizedBox(height: 8),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      'Enter your registered email to receive OTP for password reset.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 30),
+
+                  /// 🔹 Email Field with Validation
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: Color(0xff999999)),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: TextFormField(
-                        controller: controller.emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Colors.white),
+                    child: TextFormField(
+                      controller: controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: TextStyle(color: Colors.white),
 
-                        decoration: InputDecoration(
-                          hintText: 'Enter Your Email',
-                          hintStyle: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff999999),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(
-                            Icons.phone,
-                            size: 16,
-                            color: Color(0xff989898),
-                          ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter email";
+                        }
+
+                        // ✅ Email regex validation
+                        if (!GetUtils.isEmail(value)) {
+                          return "Please enter valid email";
+                        }
+
+                        return null;
+                      },
+
+                      decoration: InputDecoration(
+                        hintText: 'Enter your Email',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        prefixIcon: Icon(Icons.email, color: Colors.grey),
+
+                        errorStyle: TextStyle(color: Colors.red), // 👈 கீழே error color
+
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: buttontheme),
+                        ),
+
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Colors.red),
+                        ),
+
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Colors.red),
                         ),
                       ),
                     ),
@@ -70,38 +113,33 @@ class Forgotpasswordscreen extends StatelessWidget {
 
                   SizedBox(height: 30),
 
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: InkWell(
-                        onTap: () {
-                         controller.forgotPassword();
-                        },
-                        child: Container(
-                          width: 300,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(25),
-                            color: buttontheme,
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12.0,
-                              ),
-                              child: Text(
-                                'Send OTP',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                  /// 🔹 Button
+                  InkWell(
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        controller.forgotPassword();
+                      }
+                    },
+                    child: Container(
+                      width: 280,
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        color: buttontheme,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Send OTP',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
                   ),
+
+                  SizedBox(height: 20),
                 ],
               ),
             ),

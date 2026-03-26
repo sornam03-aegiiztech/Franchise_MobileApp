@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
+import '../../../Appconfig.dart';
 import '../../../Controllers/DistributorModuleController/DashboardController.dart';
+import '../../../Controllers/DistributorModuleController/ProfileController.dart';
 
 class DistributionDashboardScreen extends StatelessWidget {
   DistributionDashboardScreen({super.key});
 
   final ListingController controller = Get.put(ListingController());
   final DistributorDashboardController dashboardController=Get.put(DistributorDashboardController());
+  final profilecontroller = Get.put(DistributorProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,34 +25,27 @@ class DistributionDashboardScreen extends StatelessWidget {
             children: [
 
               /// Top Profile Section
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 25,
-                    backgroundImage: AssetImage("assets/images/profile.png"),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff2C2C2E),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.notifications_none,
-                        color: Colors.white),
-                  )
-                ],
-              ),
+              Obx(() {
+                return CircleAvatar(
+                  radius: 25,
+                  backgroundImage: profilecontroller.profileImage.value.isNotEmpty
+                      ? NetworkImage("${AppConfig.imageURL}${profilecontroller.profileImage.value}")
+                      : const AssetImage("assets/images/profile.png") as ImageProvider,
+                );
+              }),
 
               const SizedBox(height: 15),
 
-              const Text(
-                "Welcome Guhan,",
-                style: TextStyle(
+              Obx(() {
+                return Text(
+                  "Welcome ${profilecontroller.ownerName.value},",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
-                    fontWeight: FontWeight.w600),
-              ),
+                    fontWeight: FontWeight.w600,
+                  ),
+                );
+              }),
 
               const SizedBox(height: 5),
 

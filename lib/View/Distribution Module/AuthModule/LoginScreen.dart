@@ -138,9 +138,9 @@ class DistributionLoginscreen extends StatelessWidget {
                             Get.to(DistributorForgotPassword());
                         },
                         child: Text(
-                          'Forgot Password',
+                          'Forgot Password?',
                           style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.white
                           ),

@@ -7,6 +7,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../Controllers/CustomerModuleController/DashboardController.dart';
 import '../../../Controllers/DistributorModuleController/DistributorDetailsController.dart';
 import '../Subscriptions/PremiumScreen.dart';
 import 'Notifications.dart';
@@ -22,6 +23,8 @@ class DistributionDetailsScreen extends StatefulWidget {
 
 class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
   final DistributorDetailsController distributorDetailsController=Get.put(DistributorDetailsController());
+  final servicesController = Get.put(ServicesController());
+  final allcontroller = Get.put(AllDistributorController());
   File? brandLogo;
   File? ownerImage;
   File? frontDoc;
@@ -847,44 +850,54 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
         const SizedBox(height: 6),
 
         /// 🔹 DROPDOWN
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: const Color(0xff3A3A3A),
-            borderRadius: BorderRadius.circular(14), // 🔥 match textfield
-            border: Border.all(color: Colors.white24),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: selectedCategory,
-              hint: const Text(
-                "Select Category",
-                style: TextStyle(color: Colors.grey,fontSize: 12),
-              ),
-              dropdownColor: const Color(0xff2C2C2C),
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-              isExpanded: true,
-              style: const TextStyle(color: Colors.white),
-              items: [
-                "Food",
-                "Retail",
-                "Education",
-                "Healthcare",
-                "Technology"
-              ].map((String value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCategory = value;
-                });
-              },
+        Obx(() {
+          if (servicesController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xff3A3A3A),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white24),
             ),
-          ),
-        ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedCategory,
+                hint: const Text(
+                  "Select Category",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                dropdownColor: const Color(0xff2C2C2C),
+                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                isExpanded: true,
+                style: const TextStyle(color: Colors.white),
+
+                /// 🔥 API LIST
+                items: servicesController.tabs.map((String value) {
+                  return DropdownMenuItem(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+
+                /// 🔥 ON CHANGE
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value;
+                  });
+
+                  /// 🔥 API CALL (filter)
+                  allcontroller.getDistributor(
+                    search: allcontroller.searchText.value,
+                    category: value == "All" ? "" : value!,
+                  );
+                },
+              ),
+            ),
+          );
+        }),
       ],
     );
   }

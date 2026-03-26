@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../Appconfig.dart';
+import '../../../Controllers/DistributorModuleController/ProfileController.dart';
+
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
 
@@ -12,7 +15,8 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  File? selectedImage;
+  final controller = Get.put(DistributorProfileController());
+
   final ImagePicker picker = ImagePicker();
 
   /// PICK IMAGE
@@ -21,9 +25,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final XFile? image = await picker.pickImage(source: source);
 
     if(image != null){
-      setState(() {
-        selectedImage = File(image.path);
-      });
+      controller.setImage(File(image.path));
     }
   }
 
@@ -106,109 +108,138 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * 0.06),
-          child: Column(
-            children: [
-
-              SizedBox(height: height * 0.02),
-
-              /// BACK BUTTON
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                  onTap: (){
-                    Get.back();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xff2E2E2E),
-                     shape: BoxShape.circle
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 7.0),
-                      child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 15,),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+            
+                SizedBox(height: height * 0.02),
+            
+                /// BACK BUTTON
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    onTap: (){
+                      Get.back();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xff2E2E2E),
+                       shape: BoxShape.circle
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 7.0),
+                        child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 15,),
+                      ),
                     ),
                   ),
                 ),
-              ),
+            
+                SizedBox(height: height * 0.03),
+            
+                /// PROFILE IMAGE
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
 
-              SizedBox(height: height * 0.03),
+                    Obx(() {
+                      if (controller.isLoading.value) {
+                        return const CircleAvatar(
+                          radius: 50,
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-              /// PROFILE IMAGE
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-
-                  CircleAvatar(
-                    radius: 50,
-                backgroundImage: selectedImage != null
-                    ?   FileImage(selectedImage!)
-                    : const AssetImage("assets/images/profile.png") as ImageProvider,
-              ),
-
-
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
+                      return CircleAvatar(
+                        radius: 50,
+                        backgroundImage: controller.selectedImage.value != null
+                            ? FileImage(controller.selectedImage.value!)
+                            : controller.profileImage.value.isNotEmpty
+                            ? NetworkImage("${AppConfig.imageURL}${controller.profileImage.value}")
+                            : const AssetImage("assets/images/profile.png") as ImageProvider,
+                      );
+                    }),
+            
+                    GestureDetector(
+                      onTap: () {
+                        openImagePicker();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Icon(Icons.camera_alt,size: 16),
+                      ),
+                    )
+                  ],
+                ),
+            
+                const SizedBox(height: 10),
+            
+                const Text(
+                  "Change profile",
+                  style: TextStyle(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      fontSize: 16
+                  ),
+                ),
+            
+                SizedBox(height: height * 0.04),
+            
+                /// NAME
+                _label("Owner Name"),
+                _textfield(Icons.person,"Enter owner name", controller.ownerNameController),
+            
+                SizedBox(height: height * 0.02),
+            
+                _label("Business Name"),
+                _textfield(Icons.business,"Enter Business name",controller.businessNameController),
+            
+                SizedBox(height: height * 0.02),
+            
+                /// PHONE
+                _label("Mobile Number"),
+                _textfield(Icons.phone,"Enter Mobile number",controller.mobileController),
+            
+                SizedBox(height: height * 0.02),
+            
+                /// EMAIL
+                _label("Business Email"),
+                _textfield(Icons.email,"Enter email",controller.emailController),
+            
+                SizedBox(
+                  height: 60,
+                ),
+            
+                /// SAVE BUTTON
+            GestureDetector(
+              onTap: () {
+                controller.updateProfile();
+              },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffF23E46),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Icon(Icons.camera_alt,size: 16),
-                  )
-                ],
-              ),
-
-              const SizedBox(height: 10),
-
-              const Text(
-                "Change profile",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16
-                ),
-              ),
-
-              SizedBox(height: height * 0.04),
-
-              /// NAME
-              _label("Owner/Company Name"),
-              _textfield(Icons.person,"Guhan"),
-
-              SizedBox(height: height * 0.02),
-
-              /// PHONE
-              _label("Mobile Number"),
-              _textfield(Icons.phone,"+91 9876543210"),
-
-              SizedBox(height: height * 0.02),
-
-              /// EMAIL
-              _label("Business Email"),
-              _textfield(Icons.email,"guhan00@gmail.com"),
-
-              const Spacer(),
-
-              /// SAVE BUTTON
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xffF23E46),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Save Change",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600
+                    child: const Center(
+                      child: Text(
+                        "Save Change",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-
-              SizedBox(height: height * 0.03)
-            ],
+            
+                SizedBox(height: height * 0.03)
+              ],
+            ),
           ),
         ),
       ),
@@ -232,8 +263,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   /// TEXTFIELD
-  Widget _textfield(IconData icon,String hint){
+  Widget _textfield(IconData icon,String hint,TextEditingController controller){
     return TextField(
+      controller: controller,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         prefixIcon: Icon(icon,color: Colors.white70),

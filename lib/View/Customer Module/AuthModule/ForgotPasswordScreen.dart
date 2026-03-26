@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../Constants/Colors.dart';
+import '../../../Controllers/CustomerModuleController/AuthController.dart';
 import '../../../Controllers/DistributorModuleController/AuthControllers.dart';
 import 'ForgotOTPScreen.dart';
 
-class DistributorForgotPassword extends StatelessWidget {
- DistributorForgotPassword({super.key});
+class CustomerForgotPassword extends StatelessWidget {
+ CustomerForgotPassword({super.key});
 
-  final DistributorForgotPasswordController controller =
-  Get.put(DistributorForgotPasswordController());
+  final CustomerForgotPasswordController controller =
+  Get.put(CustomerForgotPasswordController());
 
  final _formKey = GlobalKey<FormState>();
 
@@ -118,7 +119,7 @@ class DistributorForgotPassword extends StatelessWidget {
                   InkWell(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
-                        controller.DistributorforgotPassword();
+                        controller.CustomerforgotPassword();
                       }
                     },
                     child: Container(

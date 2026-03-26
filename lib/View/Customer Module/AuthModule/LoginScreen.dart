@@ -6,8 +6,13 @@ import 'package:franchaise_app/View/Customer%20Module/AuthModule/RegisterScreen.
 import 'package:franchaise_app/View/Customer%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 
+import '../../../Controllers/CustomerModuleController/AuthController.dart';
+import 'ForgotPasswordScreen.dart';
+
 class CustomerLoginscreen extends StatelessWidget {
-  const CustomerLoginscreen({super.key});
+  CustomerLoginscreen({super.key});
+
+  final CustomerLoginController loginController=Get.put(CustomerLoginController());
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,7 @@ class CustomerLoginscreen extends StatelessWidget {
                     height: 10,
                   ),
                   Text(
-                    'Access premium franchise opportunites.',
+                    'Access premium opportunites.',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white
@@ -60,22 +65,86 @@ class CustomerLoginscreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25),
                       ),
                       child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(        // ⭐ typed text color
+                        controller: loginController.emailController,
+
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(10),
-                        ],
+
                         decoration: InputDecoration(
-                          hintText:'Enter Your phone number',
+                          hintText:'Enter Your Email',
                           hintStyle: TextStyle(
                             fontSize: 12,
                             color:  Color(0xff999999),
                           ),
                           contentPadding: EdgeInsets.symmetric(vertical: 10),
                           border: InputBorder.none,
-                          prefixIcon: Icon(Icons.phone,size: 16,color: Color(0xff989898)),
+                          prefixIcon: Icon(Icons.mail,size: 16,color: Color(0xff989898)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 1,
+                          color: Color(0xff999999),
+                        ),
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: TextFormField(
+                        controller: loginController.passwordController,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+
+                        decoration: InputDecoration(
+                          hintText:'Enter Your Password',
+                          hintStyle: TextStyle(
+                            fontSize: 12,
+                            color:  Color(0xff999999),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                          border: InputBorder.none,
+                          prefixIcon: Icon(Icons.lock,size: 16,color: Color(0xff989898)),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              loginController.isPasswordHidden.value
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.grey,
+                            ),
+                            onPressed: () {
+                              loginController.isPasswordHidden.toggle();
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 30.0),
+                      child: InkWell(
+                        onTap: (){
+                          Get.to(CustomerForgotPassword());
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white
+                          ),
                         ),
                       ),
                     ),
@@ -89,7 +158,7 @@ class CustomerLoginscreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16.0),
                       child: GestureDetector(
                         onTap: (){
-                          Get.offAll(CustomerBottomBarScreen());
+                          loginController.CustomerloginUser();
                         },
                         child: Container(
                           width: 300,
@@ -134,7 +203,7 @@ class CustomerLoginscreen extends StatelessWidget {
                             ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                Get.to(const CustomerRegisterscreen());
+                                Get.to( CustomerRegisterscreen());
                               },
                           ),
                         ],

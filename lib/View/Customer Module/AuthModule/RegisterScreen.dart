@@ -6,13 +6,17 @@ import 'package:franchaise_app/Constants/Colors.dart';
 
 import 'package:get/get.dart';
 
+import '../../../Controllers/CustomerModuleController/AuthController.dart';
 import 'CustomerOtpScreen.dart';
 import 'LoginScreen.dart';
 
 
 
 class CustomerRegisterscreen extends StatelessWidget {
-  const CustomerRegisterscreen({super.key});
+   CustomerRegisterscreen({super.key});
+
+  final CustomerRegisterController registerController=Get.put(CustomerRegisterController());
+
 
   @override
   Widget build(BuildContext context) {
@@ -29,23 +33,36 @@ class CustomerRegisterscreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            
-                Text(
-                  'Join the Network',
-                  style: TextStyle(
-                    fontSize: width * 0.05,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
+                Center(
+                  child: Image(image: AssetImage('assets/images/applogo.png'),
+                    height: 75,
+                    width: 75,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Center(
+                  child: Text(
+                    'Join the Network',
+                    style: TextStyle(
+                      fontSize: width * 0.05,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
             
                 SizedBox(height: height * 0.015),
             
-                Text(
-                  'Discover exclusive premium franchise opportunities \nand connect with top brands',
-                  style: TextStyle(
-                    fontSize: width * 0.035,
-                    color: const Color(0xff919191),
+                Center(
+                  child: Text(
+                    'Discover exclusive premium franchise opportunities \nand connect with top brands',
+                    style: TextStyle(
+                      fontSize: width * 0.035,
+                      color: const Color(0xff919191),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
             
@@ -70,6 +87,7 @@ class CustomerRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.nameController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -112,6 +130,7 @@ class CustomerRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
+                    controller: registerController.mobileController,
                     keyboardType: TextInputType.phone,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
@@ -143,9 +162,11 @@ class CustomerRegisterscreen extends StatelessWidget {
                 Text(
                   'Email Address',
                   style: TextStyle(
-                      fontSize: width * 0.035,
+                      fontSize: width * 0.040,
                       color: Colors.white),
                 ),
+
+
             
                 SizedBox(height: height * 0.012),
             
@@ -158,7 +179,7 @@ class CustomerRegisterscreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: TextFormField(
-
+                    controller: registerController.emailController,
                     style: const TextStyle(        // ⭐ typed text color
                       color: Colors.white,
                     ),
@@ -180,6 +201,70 @@ class CustomerRegisterscreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                SizedBox(height: height * 0.02),
+
+
+                Text(
+                  'Password',
+                  style: TextStyle(
+                      fontSize: width * 0.040,
+                      color: Colors.white),
+                ),
+
+
+
+                SizedBox(height: height * 0.012),
+
+                Obx(() => Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 1,
+                      color: const Color(0xff999999),
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: TextFormField(
+                    controller: registerController.passwordController,
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
+
+                    /// 👇 IMPORTANT
+                    obscureText: registerController.isPasswordHidden.value,
+
+                    decoration: InputDecoration(
+                      hintText: 'Minimum 6 characters',
+                      hintStyle: TextStyle(
+                        fontSize: width * 0.03,
+                        color: const Color(0xff999999),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: height * 0.015,
+                      ),
+                      border: InputBorder.none,
+
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        size: width * 0.045,
+                        color: const Color(0xff989898),
+                      ),
+
+                      /// 👇 EYE ICON
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          registerController.isPasswordHidden.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          registerController.isPasswordHidden.toggle();
+                        },
+                      ),
+                    ),
+                  ),
+                )),
             
             
             
@@ -193,7 +278,7 @@ class CustomerRegisterscreen extends StatelessWidget {
                 /// CONTINUE BUTTON
                 InkWell(
                   onTap: () {
-                    Get.to(Customerotpscreen(phoneNumber: '',));
+                    registerController.CustomerregisterUser();
                   },
                   child: Container(
                     width: double.infinity,
@@ -238,7 +323,7 @@ class CustomerRegisterscreen extends StatelessWidget {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Get.to(const CustomerLoginscreen());
+                              Get.to(CustomerLoginscreen());
                             },
                         ),
                       ],
