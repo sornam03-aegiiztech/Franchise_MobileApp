@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/Controllers/CustomerModuleController/DashboardController.dart';
 import 'package:get/get.dart';
 
-class FavouritePage extends StatelessWidget {
+import '../../../Appconfig.dart';
+
+class FavouritePage extends StatefulWidget {
   const FavouritePage({super.key});
+
+  @override
+  State<FavouritePage> createState() => _FavouritePageState();
+}
+
+class _FavouritePageState extends State<FavouritePage> {
+  final controller=Get.put(GetFavouriteController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getFavourites(); // 🔥 API call
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +64,7 @@ class FavouritePage extends StatelessWidget {
                   const Spacer(),
 
                   const Text(
-                    "Favorite",
+                    "Favorites",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -65,89 +81,175 @@ class FavouritePage extends StatelessWidget {
 
               SizedBox(height: height * 0.02),
 
-              /// SEARCH BAR
-              Row(
-                children: [
-
-                  Expanded(
-                    child: Container(
-                      height: 50,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-
-                      decoration: BoxDecoration(
-                        color: Colors.white10,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-
-                      child: TextFormField(
-                        style: const TextStyle(color: Colors.white),
-
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "Search favorite...",
-                          hintStyle: TextStyle(color: Colors.white54,fontSize: 14),
-                          contentPadding: EdgeInsets.symmetric(vertical: 13,horizontal: 8),
-
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Colors.white54,
-                            size: 16,
-                          ),
-
-                          suffixIcon: Icon(
-                            Icons.close,
-                            color: Colors.white54,
-                            size: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: const Icon(Icons.tune, color: Colors.white),
-                  )
-
-                ],
-              ),
-
-              SizedBox(height: height * 0.02),
-
-              const Text(
-                "1 Results Found",
-                style: TextStyle(color: Colors.white70),
-              ),
-
+              // /// SEARCH BAR
+              // Row(
+              //   children: [
+              //
+              //     Expanded(
+              //       child: Container(
+              //         height: 50,
+              //         padding: const EdgeInsets.symmetric(horizontal: 15),
+              //
+              //         decoration: BoxDecoration(
+              //           color: Colors.white10,
+              //           borderRadius: BorderRadius.circular(30),
+              //         ),
+              //
+              //         child:TextFormField(
+              //           style: const TextStyle(color: Colors.white),
+              //
+              //           onChanged: (value) {
+              //             controller.onSearch(value); // 🔥 API CALL
+              //           },
+              //
+              //           decoration: InputDecoration(
+              //             border: InputBorder.none,
+              //             hintText: "Search favorite...",
+              //             hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
+              //             contentPadding: EdgeInsets.symmetric(vertical: 12),
+              //
+              //             prefixIcon: const Icon(
+              //               Icons.search,
+              //               color: Colors.white54,
+              //               size: 16,
+              //             ),
+              //
+              //             suffixIcon: IconButton(
+              //               icon: const Icon(Icons.close, color: Colors.white54, size: 16),
+              //               onPressed: () {
+              //                 controller.clearSearch(); // 🔥 CLEAR SEARCH
+              //               },
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //
+              //     const SizedBox(width: 10),
+              //
+              //     GestureDetector(
+              //       onTap: () {
+              //         Get.dialog(
+              //           FilterDialog(),
+              //         );
+              //       },
+              //       child: Container(
+              //         height: 50,
+              //         width: 50,
+              //         decoration: BoxDecoration(
+              //           color: Colors.white10,
+              //           borderRadius: BorderRadius.circular(25),
+              //         ),
+              //         child: const Icon(Icons.tune, color: Colors.white),
+              //       ),
+              //     )
+              //
+              //   ],
+              // ),
+              //
+              // SizedBox(height: height * 0.02),
+              //
+              // Obx(() => Text(
+              //   "${controller.favouriteList.length} Results Found",
+              //   style: const TextStyle(color: Colors.white70),
+              // )),
               SizedBox(height: height * 0.02),
 
               /// RESULT LIST
               Expanded(
-                child: ListView(
-                  children: [
+                child: RefreshIndicator(
+                  onRefresh: controller.refreshData, // 🔥 IMPORTANT
 
-                    resultCard(
-                      title: "Pulse Fitness",
-                      subtitle: "Investment: ₹150,000",
-                      category: "Health & Wellness . 12 Locations",
-                      image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f",
-                    ),
+                  child: Obx(() {
 
-                    resultCard(
-                      title: "Luxe Goods",
-                      subtitle: "Minimum Order 500units",
-                      category: "Skin care . 2 Locations",
-                      image: "https://images.unsplash.com/photo-1521334884684-d80222895322",
-                    ),
+                    /// 🔥 First Loading
+                    if (controller.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  ],
+                    /// 🔥 Empty State
+                    if (controller.favouriteList.isEmpty) {
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+
+                            child: SizedBox(
+                              height: constraints.maxHeight,
+
+                              child: const Center(
+                                child: Text(
+                                  "No Favourites Found",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    return NotificationListener<ScrollNotification>(
+                      onNotification: (scrollInfo) {
+
+                        /// 🔥 SCROLL END → LOAD MORE
+                        if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
+                          controller.loadMore();
+                        }
+
+                        return true;
+                      },
+
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(), // 🔥 IMPORTANT
+
+                        itemCount: controller.favouriteList.length +
+                            (controller.isPaginationLoading.value ? 1 : 0),
+
+                        itemBuilder: (context, index) {
+
+                          /// 🔥 Bottom Loader
+                          if (index == controller.favouriteList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          final item = controller.favouriteList[index];
+                          final details = item['details'] ?? {};
+                          final role = item['business_role'] ?? ""; // 🔥 IMPORTANT
+
+                          String title = "";
+                          String subtitle = "";
+                          String image = "";
+                          String category = details['business_category'] ?? "";
+
+                          if (role == "Franchise") {
+                            title = details['business_name'] ?? "";
+                            subtitle = "₹${details['total_invesment'] ?? ""}";
+                            image = details['image'] ?? "";
+                          } else if (role == "Distributor") {
+                            title = details['brand_name'] ?? "";
+                            subtitle = "${details['branch_territory_units'] ?? ""} units";
+                            image = details['brand_logo'] ?? "";
+                          }
+
+                          final imageUrl = image.isNotEmpty
+                              ? "${AppConfig.imageURL}$image"
+                              : "";
+
+                          return resultCard(
+                            title: title,
+                            subtitle: subtitle,
+                            category: category,
+                            image: imageUrl,
+                          );
+                        },
+                      ),
+                    );
+                  }),
                 ),
               )
 
@@ -195,6 +297,8 @@ class FavouritePage extends StatelessWidget {
 
                         Text(
                           title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -206,6 +310,8 @@ class FavouritePage extends StatelessWidget {
 
                         Text(
                           subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12),
@@ -215,6 +321,8 @@ class FavouritePage extends StatelessWidget {
 
                         Text(
                           category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white54,
                               fontSize: 12),
@@ -230,49 +338,31 @@ class FavouritePage extends StatelessWidget {
                   Stack(
                     children: [
 
+                      /// IMAGE
                       Padding(
                         padding: const EdgeInsets.only(right: 30.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(
-                            image,
-                            height:70,
-                            width:80,
+                            image, // 👈 already full URL
+
+                            height: 70,
+                            width: 80,
                             fit: BoxFit.cover,
-                          ),
+
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                "assets/images/no_image.png", // ✅ LOCAL IMAGE
+                                height: 70,
+                                width: 80,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
                         ),
                       ),
 
-                      /// RATING
-                      Positioned(
-                        bottom:5,
-                        left:5,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:6,
-                              vertical:2
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.star,
-                                  color: Colors.amber,
-                                  size:12),
-                              SizedBox(width:2),
-                              Text(
-                                "4.5",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize:10
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
+
 
                     ],
                   )
@@ -312,23 +402,124 @@ class FavouritePage extends StatelessWidget {
           top: 8,
           right: 8,
           child: Container(
-            height: 25,
-            width: 25,
+            height: 30,
+            width: 30,
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-                color: Colors.white12,
-                shape: BoxShape.circle
+              color: Colors.black.withOpacity(.4),
+              borderRadius: BorderRadius.circular(12),
 
             ),
             child: const Icon(
               Icons.favorite,
-              color: Colors.white,
-              size:8,
+              color: Colors.red,
+              size:14,
             ),
           ),
         ),
 
       ],
+    );
+  }
+}
+
+
+class FilterDialog extends StatelessWidget {
+
+  final serviceController = Get.put(ServicesController());
+  final dashboardController = Get.find<AllServicesController>();
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            const Text(
+              "Select Category",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            /// 🔥 COLUMN LIST
+            Obx(() => ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 300, // 🔥 max height
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    serviceController.tabs.length,
+                        (index) {
+
+                      final item = serviceController.tabs[index];
+
+                      return GestureDetector(
+                        onTap: () {
+
+                          dashboardController.selectedCategory.value =
+                          item == "All" ? "" : item;
+
+                          dashboardController.getServices(
+                            search: dashboardController.searchText.value,
+                            category: dashboardController.selectedCategory.value,
+                          );
+
+                          Get.back();
+                        },
+
+                        child: Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              item,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            )),
+
+            const SizedBox(height: 10),
+
+            /// CLOSE BUTTON
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.red),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

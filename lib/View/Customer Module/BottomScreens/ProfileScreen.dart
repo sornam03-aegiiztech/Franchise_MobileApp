@@ -4,6 +4,8 @@ import 'package:franchaise_app/View/Customer%20Module/AuthModule/LoginScreen.dar
 import 'package:franchaise_app/View/Customer%20Module/ProfileModule/FavouritesScreen.dart';
 import 'package:get/get.dart';
 
+import '../../../Appconfig.dart';
+import '../../../Controllers/CustomerModuleController/ProfileController.dart';
 import '../ProfileModule/EditProfileScreen.dart';
 
 
@@ -14,8 +16,21 @@ import '../ProfileModule/EditProfileScreen.dart';
 
 
 
-class CustomerProfileScreen extends StatelessWidget {
-  const CustomerProfileScreen({super.key});
+class CustomerProfileScreen extends StatefulWidget {
+  CustomerProfileScreen({super.key});
+
+  @override
+  State<CustomerProfileScreen> createState() => _CustomerProfileScreenState();
+}
+
+class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
+  final controller = Get.put(CustomerProfileController());
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,17 +81,22 @@ class CustomerProfileScreen extends StatelessWidget {
                   const SizedBox(height: 30),
 
                   /// Profile Image
-                  Center(
+                  Obx(() => Center(
                     child: Column(
                       children: [
 
                         Stack(
                           children: [
 
-                            const CircleAvatar(
+                            CircleAvatar(
                               radius: 48,
-                              backgroundImage:
-                              AssetImage("assets/images/profile.png"),
+                              backgroundImage: controller.profileImage.value.isNotEmpty
+                                  ? NetworkImage(
+                                  controller.profileImage.value.startsWith("http")
+                                      ? controller.profileImage.value
+                                      : "${AppConfig.imageURL}${controller.profileImage.value}"
+                              )
+                                  : const AssetImage("assets/images/profile.png") as ImageProvider,
                             ),
 
                             Positioned(
@@ -88,9 +108,7 @@ class CustomerProfileScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white,
-                                      width: 2),
+                                  border: Border.all(color: Colors.white, width: 2),
                                 ),
                               ),
                             )
@@ -99,24 +117,18 @@ class CustomerProfileScreen extends StatelessWidget {
 
                         const SizedBox(height: 10),
 
-                        const Text(
-                          "Guhan",
-                          style: TextStyle(
+                        Text(
+                          controller.fullName.value.isNotEmpty
+                              ? controller.fullName.value
+                              : "User",
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.w600),
                         ),
-
-                        const SizedBox(height: 4),
-
-                        const Text(
-                          "EcoClean Co.",
-                          style: TextStyle(
-                              color: Colors.white54),
-                        )
                       ],
                     ),
-                  ),
+                  )),
 
                   const SizedBox(height: 30),
 
@@ -198,7 +210,6 @@ class CustomerProfileScreen extends StatelessWidget {
       ),
     );
   }
-
 
   void _showLogoutDialog(BuildContext context) {
     showDialog(

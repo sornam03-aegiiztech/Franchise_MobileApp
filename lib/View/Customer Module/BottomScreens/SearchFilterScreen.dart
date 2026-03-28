@@ -2,11 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:get/get.dart';
 
-class SearchFilterPage extends StatelessWidget {
+import '../../../Appconfig.dart';
+import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+
+class SearchFilterPage extends StatefulWidget {
   const SearchFilterPage({super.key});
 
   @override
+  State<SearchFilterPage> createState() => _SearchFilterPageState();
+}
+
+class _SearchFilterPageState extends State<SearchFilterPage> {
+  final controller = Get.put(AllServicesController());
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+  @override
   Widget build(BuildContext context) {
+
 
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -82,9 +98,18 @@ class SearchFilterPage extends StatelessWidget {
                       child: TextFormField(
                         style: const TextStyle(color: Colors.white),
 
+                        onChanged: (value) {
+                          controller.searchText.value = value;
+
+                          controller.getServices(
+                            search: value,
+                            category: controller.selectedCategory.value,
+                          );
+                        },
+
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          hintText: "Search franchise...",
+                          hintText: "Search ...",
                           hintStyle: TextStyle(color: Colors.white54,fontSize: 14),
                           contentPadding: EdgeInsets.symmetric(vertical: 13,horizontal: 8),
 
@@ -106,14 +131,21 @@ class SearchFilterPage extends StatelessWidget {
 
                   const SizedBox(width: 10),
 
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(25),
+                  GestureDetector(
+                    onTap: () {
+                      Get.dialog(
+                        FilterDialog(),
+                      );
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.white),
                     ),
-                    child: const Icon(Icons.tune, color: Colors.white),
                   )
 
                 ],
@@ -121,34 +153,69 @@ class SearchFilterPage extends StatelessWidget {
 
               SizedBox(height: height * 0.02),
 
-              const Text(
-                "1 Results Found",
+              Obx(() => Text(
+                "${controller.services.length} Results Found",
                 style: TextStyle(color: Colors.white70),
-              ),
+              )),
 
               SizedBox(height: height * 0.02),
 
               /// RESULT LIST
               Expanded(
-                child: ListView(
-                  children: [
+                child: Obx(() {
 
-                    resultCard(
-                      title: "Pulse Fitness",
-                      subtitle: "Investment: ₹150,000",
-                      category: "Health & Wellness . 12 Locations",
-                      image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f",
+
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await controller.refreshData();
+                    },
+                    child: controller.services.isEmpty
+                        ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 200),
+                        Center(
+                          child: Text(
+                            "No services found",
+                            style: TextStyle(color: Colors.white54),
+                          ),
+                        ),
+                      ],
+                    )
+                        : NotificationListener<ScrollNotification>(
+                      onNotification: (scrollInfo) {
+
+                        if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
+
+                          controller.getServices(
+                            search: controller.searchText.value,
+                            category: controller.selectedCategory.value,
+                            loadMore: true,
+                          );
+                        }
+
+                        return false;
+                      },
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: controller.services.length,
+                        itemBuilder: (context, index) {
+
+                          final data = controller.services[index];
+
+                          return resultCard(
+                            title: data["brand_name"] ?? "",
+                            subtitle: data["name"] ?? "",
+                            category: data["business_category"] ?? "",
+                            image: "${AppConfig.imageURL}${data["image"] ?? ""}",
+                            data: data,
+                          );
+                        },
+                      ),
                     ),
-
-                    resultCard(
-                      title: "Luxe Goods",
-                      subtitle: "Minimum Order 500units",
-                      category: "Skin care . 2 Locations",
-                      image: "https://images.unsplash.com/photo-1521334884684-d80222895322",
-                    ),
-
-                  ],
-                ),
+                  );
+                }),
               )
 
             ],
@@ -163,8 +230,18 @@ class SearchFilterPage extends StatelessWidget {
     required String title,
     required String subtitle,
     required String category,
-    required String image
+    required String image,
+    required Map data,
+
   }){
+
+    String extraText = "";
+
+    if(data["type"] == "franchise"){
+      extraText = "Investment: ₹ ${data["total_invesment"] ?? "N/A"}";
+    }else{
+      extraText = "Units: ${data["branch_territory_units"] ?? "N/A"}";
+    }
 
     return Stack(
       children: [
@@ -195,6 +272,7 @@ class SearchFilterPage extends StatelessWidget {
 
                         Text(
                           title,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -206,6 +284,7 @@ class SearchFilterPage extends StatelessWidget {
 
                         Text(
                           subtitle,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12),
@@ -215,6 +294,7 @@ class SearchFilterPage extends StatelessWidget {
 
                         Text(
                           category,
+                            overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white54,
                               fontSize: 12),
@@ -234,45 +314,26 @@ class SearchFilterPage extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 30.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
+                          child: image.isNotEmpty
+                              ? Image.network(
                             image,
-                            height:70,
-                            width:80,
+                            height: 70,
+                            width: 80,
                             fit: BoxFit.cover,
+                          )
+                              : Container(
+                            height: 70,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade800,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.image, color: Colors.white54),
                           ),
                         ),
                       ),
 
-                      /// RATING
-                      Positioned(
-                        bottom:5,
-                        left:5,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:6,
-                              vertical:2
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.star,
-                                  color: Colors.amber,
-                                  size:12),
-                              SizedBox(width:2),
-                              Text(
-                                "4.5",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize:10
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
+
 
                     ],
                   )
@@ -308,27 +369,110 @@ class SearchFilterPage extends StatelessWidget {
         ),
 
         /// SAVE ICON (CARD TOP RIGHT)
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Container(
-            height: 25,
-            width: 25,
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white12,
-              shape: BoxShape.circle
 
-            ),
-            child: const Icon(
-              Icons.favorite,
-              color: Colors.white,
-              size:8,
-            ),
-          ),
-        ),
 
       ],
+    );
+  }
+}
+
+
+class FilterDialog extends StatelessWidget {
+
+  final serviceController = Get.put(ServicesController());
+  final dashboardController = Get.find<AllServicesController>();
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            const Text(
+              "Select Category",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            /// 🔥 COLUMN LIST
+            Obx(() => ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 300, // 🔥 max height
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    serviceController.tabs.length,
+                        (index) {
+
+                      final item = serviceController.tabs[index];
+
+                      return GestureDetector(
+                        onTap: () {
+
+                          dashboardController.selectedCategory.value =
+                          item == "All" ? "" : item;
+
+                          dashboardController.getServices(
+                            search: dashboardController.searchText.value,
+                            category: dashboardController.selectedCategory.value,
+                          );
+
+                          Get.back();
+                        },
+
+                        child: Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              item,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            )),
+
+            const SizedBox(height: 10),
+
+            /// CLOSE BUTTON
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.red),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

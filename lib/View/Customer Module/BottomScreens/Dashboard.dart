@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../../../Controllers/CustomerModuleController/ProfileController.dart';
 import 'AllDistributorsScreen.dart';
 import 'AllFranchiseScreen.dart';
 
@@ -22,7 +23,17 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   final controller = Get.put(CustomerDashboardController());
   TextEditingController searchController = TextEditingController();
 
+  final profilecontroller = Get.put(CustomerProfileController());
+
+
   double dragPosition = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    profilecontroller.getProfile();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,14 +60,18 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// TOP BAR
-                  Row(
+                  Obx(() => Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 22,
-                        backgroundImage: NetworkImage(
-                          "https://randomuser.me/api/portraits/men/32.jpg",
-                        ),
+                        backgroundImage: profilecontroller.profileImage.value.isNotEmpty
+                            ? NetworkImage(
+                            profilecontroller.profileImage.value.startsWith("http")
+                                ? profilecontroller.profileImage.value
+                                : "${AppConfig.imageURL}${profilecontroller.profileImage.value}"
+                        )
+                            : const AssetImage("assets/images/profile.png") as ImageProvider,
                       ),
 
                       Container(
@@ -71,19 +86,19 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                         ),
                       ),
                     ],
-                  ),
+                  )),
 
                   const SizedBox(height: 15),
 
                   /// WELCOME TEXT
-                  const Text(
-                    "Welcome Guhan,",
-                    style: TextStyle(
+                  Obx(() => Text(
+                    "Welcome ${profilecontroller.fullName.value.isNotEmpty ? profilecontroller.fullName.value : "User"},",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
                     ),
-                  ),
+                  )),
 
                   const SizedBox(height: 4),
 

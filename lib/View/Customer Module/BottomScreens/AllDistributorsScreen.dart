@@ -19,6 +19,8 @@ class AllDistributorsPage extends StatefulWidget {
 class _AllDistributorsPageState extends State<AllDistributorsPage> {
   final controller = Get.put(ServicesController());
   final allcontroller = Get.put(AllDistributorController());
+  TextEditingController searchController = TextEditingController();
+  final favController = Get.put(FavouriteController());
 
   int selectedTab = 0;
   double dragPosition = 0;
@@ -95,6 +97,7 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: TextField(
+                        controller: searchController,
                         onChanged: (value) {
                           allcontroller.getDistributor(
                             search: value,
@@ -166,217 +169,232 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
               /// FRANCHISE LIST
               Expanded(
                 child: Obx(() {
+
+                  /// 🔄 LOADING
                   if (allcontroller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (allcontroller.distributorList.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "No Distributors found",
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                    );
-                  }
+                  /// 🔥 REFRESH INDICATOR WRAP FULL
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      searchController.clear();
+                      await allcontroller.refreshData(); // 🔥 reset + reload
+                    },
+                    child: allcontroller.distributorList.isEmpty
 
-                  return ListView.builder(
-                    controller: scrollController,
-
-                    itemCount: allcontroller.distributorList.length,
-
-                    itemBuilder: (context, index) {
-                      if (index == allcontroller.distributorList.length) {
-                        return Obx(
-                              () => allcontroller.isPaginationLoading.value
-                              ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                              : const SizedBox(),
-                        );
-                      }
-
-                      var data = allcontroller.distributorList[index];
-
-                      return Container(
-                        padding: EdgeInsets.all(8),
-
-                        height: height * 0.45,
-
-                        margin: EdgeInsets.only(bottom: height * 0.02),
-
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-
-                          child: Stack(
-                            children: [
-                              /// IMAGE
-                              Positioned.fill(
-                                child: Image.network(
-                                  "${AppConfig.imageURL}${data["brand_logo"]}",
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-
-                              Positioned(
-                                top: 12,
-                                right: 12,
-                                child: Container(
-                                  height: 36,
-                                  width: 36,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(.4),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(
-                                    Icons.favorite_border,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-
-                              /// GRADIENT
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.transparent,
-                                        Colors.black87,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              /// TEXT
-                              Positioned(
-                                left: width * 0.04,
-                                bottom: height * 0.09,
-
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      data["brand_name"] ?? "",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-
-                                    Text(
-                                      data["city"] ?? "",
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              /// SEE MORE BUTTON
-                              Positioned(
-                                left: 15,
-                                bottom: 10,
-                                child: StatefulBuilder(
-                                  builder: (context, setStateBtn) {
-                                    return GestureDetector(
-                                      onHorizontalDragUpdate: (details) {
-                                        setStateBtn(() {
-                                          dragPosition += details.delta.dx;
-
-                                          if (dragPosition < 0)
-                                            dragPosition = 0;
-                                          if (dragPosition > 150)
-                                            dragPosition = 150;
-                                        });
-                                      },
-
-                                      onHorizontalDragEnd: (details) {
-                                        if (dragPosition > 130) {
-                                          /// NAVIGATE PAGE
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                              const DistributorsDetailsPage(),
-                                            ),
-                                          );
-                                        }
-
-                                        setStateBtn(() {
-                                          dragPosition = 0;
-                                        });
-                                      },
-
-                                      child: Container(
-                                        width: 290,
-                                        height: 45,
-
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(.25),
-                                          borderRadius: BorderRadius.circular(
-                                            30,
-                                          ),
-                                        ),
-
-                                        child: Stack(
-                                          alignment: Alignment.centerLeft,
-                                          children: [
-                                            const Center(
-                                              child: Text(
-                                                "See more",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-
-                                            AnimatedPositioned(
-                                              duration: const Duration(
-                                                milliseconds: 100,
-                                              ),
-                                              left: dragPosition,
-
-                                              child: Container(
-                                                height: 40,
-                                                width: 40,
-
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
-                                                  shape: BoxShape.circle,
-                                                ),
-
-                                                child: const Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 16,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
+                    /// ❌ EMPTY STATE → MUST BE SCROLLABLE
+                        ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 200),
+                        Center(
+                          child: Text(
+                            "No distributors found",
+                            style: TextStyle(color: Colors.white54),
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    )
+
+                    /// 🟢 DATA LIST
+                        : ListView.builder(
+                      controller: scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: allcontroller.distributorList.length,
+                      itemBuilder: (context, index) {
+
+                        var data = allcontroller.distributorList[index];
+
+                        return Container(
+                          padding: EdgeInsets.all(8),
+                          height: height * 0.45,
+                          margin: EdgeInsets.only(bottom: height * 0.02),
+
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              children: [
+
+                                /// IMAGE
+                                Positioned.fill(
+                                  child: Image.network(
+                                    "${AppConfig.imageURL}${data["brand_logo"]}",
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.transparent,
+                                          Colors.black87,
+                                        ],
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                /// ❤️ ICON
+                                Obx(() {
+                                  bool isFav = favController.favouriteIds.contains(data["business_id"]);
+
+                                  return Positioned(
+                                    top: 12,
+                                    right: 12,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        bool isFav = favController.favouriteIds.contains(data["business_id"]);
+
+                                        if (isFav) {
+
+                                          favController.removeFavourite(
+                                            businessId: data["business_id"],
+                                            category: data["business_category"] ?? "",
+                                            role: data["role"] ?? "",
+                                          );
+                                        } else {
+
+                                          favController.addFavourite(
+                                            businessId: data["business_id"],
+                                            category: data["business_category"] ?? "",
+                                            role: data["role"] ?? "",
+
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        height: 36,
+                                        width: 36,
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(.4),
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Icon(
+                                          isFav ? Icons.favorite : Icons.favorite_border,
+                                          color: isFav ? Colors.red : Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+
+                                /// GRADIENT
+
+
+                                /// TEXT
+                                Positioned(
+                                  left: width * 0.04,
+                                  bottom: height * 0.09,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        data["brand_name"] ?? "",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${data["branch_territory_units"]} units",
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                /// SEE MORE BUTTON (unchanged)
+                                Positioned(
+                                  left: 15,
+                                  bottom: 10,
+                                  child: StatefulBuilder(
+                                    builder: (context, setStateBtn) {
+                                      return GestureDetector(
+                                        onHorizontalDragUpdate: (details) {
+                                          setStateBtn(() {
+                                            dragPosition += details.delta.dx;
+
+                                            if (dragPosition < 0) dragPosition = 0;
+                                            if (dragPosition > 150) dragPosition = 150;
+                                          });
+                                        },
+                                        onHorizontalDragEnd: (details) {
+                                          if (dragPosition > 130) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                const DistributorsDetailsPage(),
+                                              ),
+                                            );
+                                          }
+
+                                          setStateBtn(() {
+                                            dragPosition = 0;
+                                          });
+                                        },
+                                        child: Container(
+                                          width: 290,
+                                          height: 45,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(.25),
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          child: Stack(
+                                            alignment: Alignment.centerLeft,
+                                            children: [
+                                              const Center(
+                                                child: Text(
+                                                  "See more",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                              AnimatedPositioned(
+                                                duration:
+                                                const Duration(milliseconds: 100),
+                                                left: dragPosition,
+                                                child: Container(
+                                                  height: 40,
+                                                  width: 40,
+                                                  decoration: const BoxDecoration(
+                                                    color: Colors.white,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 16,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }),
-              ),
+              )
 
             ],
           ),
