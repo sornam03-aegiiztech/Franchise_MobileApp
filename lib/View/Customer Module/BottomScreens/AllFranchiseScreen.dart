@@ -319,7 +319,10 @@ class _AllFranchisePageState extends State<AllFranchisePage> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                const FranchiseDetailsPage(),
+                                                FranchiseDetailsPage(
+                                                  type: data["role"] ?? "Franchise",
+                                                  businessId: data["business_id"] ?? "",
+                                                ),
                                               ),
                                             );
                                           }

@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../Appconfig.dart';
+import '../../Models/FranchiseDetailsModel.dart';
 
 
 
@@ -822,3 +823,190 @@ class GetFavouriteController extends GetxController {
 }
 
 
+
+class FranchiseDetailsController extends GetxController {
+  RxBool isLoading = false.obs;
+  Rx<FranchiseDetailsModel?> details =
+  Rx<FranchiseDetailsModel?>(null);
+
+  RxString errorMessage = "".obs;
+
+
+  Future<void> fetchFranchiseDetails({
+    required String type,        // Franchise / Distributor
+    required String businessId,  // dynamic id
+    required String viewType,    // profile / contact
+  }) async {
+    try {
+      isLoading(true);
+      errorMessage("");
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token") ?? "";
+
+      /// ✅ Query Params (Correct Way)
+      final uri = Uri.parse(
+          "${AppConfig.baseURL}customer_business_details")
+          .replace(queryParameters: {
+        "type": type,
+        "business_id": businessId,
+        "view_type": viewType,
+      });
+
+      print("API URL => $uri");
+
+      final response = await http.get(
+        uri,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+        },
+      );
+
+      print("STATUS CODE => ${response.statusCode}");
+      print("RESPONSE BODY => ${response.body}");
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+
+        if (jsonData['data'] != null) {
+          details.value =
+              FranchiseDetailsModel.fromJson(jsonData['data']);
+        } else {
+          errorMessage("No data found");
+        }
+      } else {
+        errorMessage("Something went wrong (${response.statusCode})");
+      }
+    } catch (e) {
+      errorMessage("Error: $e");
+      print("ERROR => $e");
+    } finally {
+      isLoading(false);
+    }
+  }
+}
+
+class GetDistributorDetailsController extends GetxController {
+  RxBool isLoading = false.obs;
+  Rx<DistributorDetailsModel?> details =
+  Rx<DistributorDetailsModel?>(null);
+
+  Future<void> fetchDistributorDetails({
+    required String type,
+    required String businessId,
+    required String viewType,
+  }) async {
+    try {
+      isLoading(true);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token") ?? "";
+
+      final uri = Uri.parse(
+          "${AppConfig.baseURL}customer_business_details")
+          .replace(queryParameters: {
+        "type": type,
+        "business_id": businessId,
+        "view_type": viewType,
+      });
+
+      final response = await http.get(uri, headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        details.value =
+            DistributorDetailsModel.fromJson(data['data']);
+      }
+    } catch (e) {
+      print("ERROR => $e");
+    } finally {
+      isLoading(false);
+    }
+  }
+}
+
+class FranchiseContactController extends GetxController {
+  RxBool isLoading = false.obs;
+  Rx<FranchiseDetailsModel?> details =
+  Rx<FranchiseDetailsModel?>(null);
+
+  Future<void> fetchContactDetails({
+    required String type,
+    required String businessId,
+  }) async {
+    try {
+      isLoading(true);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token") ?? "";
+
+      final uri = Uri.parse(
+          "${AppConfig.baseURL}customer_business_details")
+          .replace(queryParameters: {
+        "type": type,
+        "business_id": businessId,
+        "view_type": "contact", // 🔥 important
+      });
+
+      final response = await http.get(uri, headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        details.value =
+            FranchiseDetailsModel.fromJson(data['data']);
+      }
+    } catch (e) {
+      print("ERROR => $e");
+    } finally {
+      isLoading(false);
+    }
+  }
+}
+
+class DistributorContactController extends GetxController {
+  RxBool isLoading = false.obs;
+  Rx<DistributorDetailsModel?> details =
+  Rx<DistributorDetailsModel?>(null);
+
+  Future<void> fetchDistributorContact({
+    required String type,
+    required String businessId,
+  }) async {
+    try {
+      isLoading(true);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString("token") ?? "";
+
+      final uri = Uri.parse(
+          "${AppConfig.baseURL}customer_business_details")
+          .replace(queryParameters: {
+        "type": type,
+        "business_id": businessId,
+        "view_type": "contact", // 🔥 important
+      });
+
+      final response = await http.get(uri, headers: {
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        details.value =
+            DistributorDetailsModel.fromJson(data['data']);
+      }
+    } catch (e) {
+      print("ERROR => $e");
+    } finally {
+      isLoading(false);
+    }
+  }
+}

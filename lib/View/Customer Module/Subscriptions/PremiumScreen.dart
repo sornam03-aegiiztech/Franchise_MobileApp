@@ -3,8 +3,12 @@ import 'package:franchaise_app/View/Customer%20Module/BottomBar.dart';
 
 import 'package:get/get.dart';
 
-class Premiumscreen extends StatelessWidget {
-  const Premiumscreen({super.key});
+import '../../../Controllers/CustomerModuleController/SubscriptionController.dart';
+
+class CustomerPremiumscreen extends StatelessWidget {
+  CustomerPremiumscreen({super.key});
+
+  final CustomerSubscriptionController subscriptionController=Get.put(CustomerSubscriptionController());
 
   @override
   Widget build(BuildContext context) {
@@ -84,102 +88,102 @@ class Premiumscreen extends StatelessWidget {
 
 
 
-                Stack(
-                      clipBehavior: Clip.none,
-                      children: [
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
 
-                        /// MAIN CARD
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(20, 45, 20, 20),
+                      /// MAIN CARD
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(20, 45, 20, 20),
 
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
 
-                            border: Border.all(color: Colors.white24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                blurRadius: 15,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
+                          border: Border.all(color: Colors.white24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 15,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
 
-                          child: Column(
-                            children: [
+                        child: Column(
+                          children: [
 
-                              /// PRICE
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                            /// PRICE
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
 
-                                  Text(
-                                    "₹99",
-                                    style: TextStyle(
+                                Obx(() => Text(
+                                  "₹${subscriptionController.planName.value}",
+                                  style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20
                                   ),
+                                )),
 
-                                  SizedBox(width: 8),
+                                SizedBox(width: 8),
 
-                                  Text(
-                                    "₹199",
-                                    style: TextStyle(
-                                      color: Colors.white54,
-                                      decoration: TextDecoration.lineThrough,
-                                    ),
+                                Text(
+                                  "₹399",
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    decoration: TextDecoration.lineThrough,
                                   ),
+                                ),
 
-                                ],
-                              ),
-
-                              const SizedBox(height: 8),
-
-                              const Text(
-                                "Get Premium Lifetime Access",
-                                style: TextStyle(color: Colors.white70),
-                              )
-
-                            ],
-                          ),
-                        ),
-
-                        /// FULL WIDTH OFFER LABEL
-                        Positioned(
-                          top: -18,
-                          left: 0,
-                          right: 0,
-
-                          child: Container(
-                            height: 36,
-                            alignment: Alignment.center,
-
-                            decoration: const BoxDecoration(
-                              color: Color(0xffFF4040),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(50),
-                                topRight: Radius.circular(50),
-                                bottomLeft: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
-                              ),
+                              ],
                             ),
 
-                            child: const Text(
-                              "Limited Time Offer",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            const SizedBox(height: 8),
+
+                            const Text(
+                              "Get Premium Lifetime Access",
+                              style: TextStyle(color: Colors.white70),
+                            )
+
+                          ],
+                        ),
+                      ),
+
+                      /// FULL WIDTH OFFER LABEL
+                      Positioned(
+                        top: -18,
+                        left: 0,
+                        right: 0,
+
+                        child: Container(
+                          height: 36,
+                          alignment: Alignment.center,
+
+                          decoration: const BoxDecoration(
+                            color: Color(0xffFF4040),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50),
+                              bottomLeft: Radius.circular(5),
+                              bottomRight: Radius.circular(5),
+                            ),
+                          ),
+
+                          child: Text(
+                            subscriptionController.planType.value,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
+                      ),
 
-                      ],
-                    ),
+                    ],
+                  ),
 
 
                   const SizedBox(height: 30),
@@ -198,9 +202,18 @@ class Premiumscreen extends StatelessWidget {
 
                   const SizedBox(height: 15),
 
-                  _feature("Unlock Contact Details"),
-                  _feature("Priority Support"),
-                  _feature("Verified data"),
+                  Obx(() => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: subscriptionController.includedList
+                        .map((e) => Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "• $e",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ))
+                        .toList(),
+                  )),
 
 
                   const SizedBox(height: 50),
@@ -208,25 +221,27 @@ class Premiumscreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffF23E46),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(35),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffF23E46),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(35),
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const SuccessDialog(),
-                        );
-                      },
-                      child: const Text(
-                        "Pay Now ₹99",
-                        style: TextStyle(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const SuccessDialog(),
+                          );
+                        },
+                        child:  Obx(() => Text(
+                          "Pay Now ₹${subscriptionController.planName.value}",
+                          style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,color: Colors.white),
-                      ),
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ))
                     ),
                   ),
 

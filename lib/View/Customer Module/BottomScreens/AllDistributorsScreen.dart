@@ -333,7 +333,10 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                const DistributorsDetailsPage(),
+                                                DistributorsDetailsPage(
+                                                  type: data["role"] ?? "Distributor",
+                                                  businessId: data["business_id"] ?? "",
+                                                ),
                                               ),
                                             );
                                           }
