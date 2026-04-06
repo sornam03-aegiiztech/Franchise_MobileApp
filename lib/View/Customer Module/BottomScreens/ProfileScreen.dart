@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:franchaise_app/ChoosejourneyScreen.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/Controllers/CustomerModuleController/AuthController.dart';
 import 'package:franchaise_app/View/Customer%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Customer%20Module/ProfileModule/FavouritesScreen.dart';
+import 'package:franchaise_app/View/Customer%20Module/ProfileModule/PrivacyPolicy.dart';
+import 'package:franchaise_app/View/Customer%20Module/ProfileModule/TermsandConditions.dart';
 import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
@@ -168,9 +172,17 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
 
                   const SizedBox(height: 14),
 
-                  _menuTile(Icons.language, "Choose language"),
+                  InkWell(
+                    onTap: (){
+                      Get.to(CustomerTermsScreen());
+                    },
+                      child: _menuTile(Icons.description, "Terms & Conditions")),
                   const SizedBox(height: 12),
-                  _menuTile(Icons.security_outlined, "Security"),
+                  InkWell(
+                    onTap: (){
+                      Get.to(CustomerPrivacyPolicyScreen());
+                    },
+                      child: _menuTile(Icons.security_outlined, "Privacy Policy")),
                   const SizedBox(height: 12),
                   _menuTile(Icons.help_outline, "Help & Support"),
 
@@ -255,10 +267,16 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
+
+                await AppConfig.pref.clear(); // clear saved data
+
+                Get.delete<CustomerLoginController>(); // reset controller
+
+                Get.offAll(() => ChooseJourneyScreen());
 
 
-                Get.offAll(CustomerLoginscreen());
+
 
               },
               child: const Text("Logout",style: TextStyle(color: Colors.white),),

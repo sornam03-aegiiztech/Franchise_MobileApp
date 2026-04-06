@@ -5,6 +5,7 @@ import 'package:get/get_core/src/get_main.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../../../main.dart';
 import '../DetailsPage/DistributorsDetailsPage.dart';
 
 
@@ -123,46 +124,51 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
               SizedBox(height: height * 0.02),
 
               /// CATEGORY TABS
-              Obx(() => SizedBox(
-                height: height * 0.05,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: controller.tabs.length,
-                  itemBuilder: (context, index) {
+              Obx(() =>
+                  SizedBox(
+                    height: height * 0.05,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.tabs.length,
+                      itemBuilder: (context, index) {
+                        bool selected = selectedTab == index;
 
-                    bool selected = selectedTab == index;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedTab = index;
-                        });
-                        allcontroller.getDistributor(
-                          search: allcontroller.searchText.value,
-                          category: controller.tabs[index],
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedTab = index;
+                            });
+                            allcontroller.getDistributor(
+                              search: allcontroller.searchText.value,
+                              category: controller.tabs[index],
+                            );
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            // 🔥 முக்கியம்
+                            margin: EdgeInsets.only(right: width * 0.03),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected ? Colors.red : Colors.white10,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Center( // 🔥 double ensure center
+                              child: Text(
+                                controller.tabs[index],
+                                textAlign: TextAlign.center, // 🔥 text center
+                                style: TextStyle(
+                                  color: selected ? Colors.white : Colors
+                                      .white70,
+                                ),
+                              ),
+                            ),
+                          ),
                         );
                       },
-                      child: Container(
-                        margin: EdgeInsets.only(right: width * 0.03),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: width * 0.05,
-                          vertical: height * 0.008,
-                        ),
-                        decoration: BoxDecoration(
-                          color: selected ? Colors.red : Colors.white10,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          controller.tabs[index],
-                          style: TextStyle(
-                            color: selected ? Colors.white : Colors.white70,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              )),
+                    ),
+                  )),
 
               SizedBox(height: height * 0.02),
 
@@ -172,7 +178,19 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
 
                   /// 🔄 LOADING
                   if (allcontroller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          FoldingCubeWidget(size: 60),
+                          SizedBox(height: 15),
+                          Text(
+                            "Loading...",
+                            style: TextStyle(color: Colors.white70),
+                          )
+                        ],
+                      ),
+                    );
                   }
 
                   /// 🔥 REFRESH INDICATOR WRAP FULL
@@ -217,13 +235,25 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
                               children: [
 
                                 /// IMAGE
+
                                 Positioned.fill(
-                                  child: Image.network(
+                                  child: (data["brand_logo"] != null &&
+                                      data["brand_logo"].toString().isNotEmpty)
+                                      ? Image.network(
                                     "${AppConfig.imageURL}${data["brand_logo"]}",
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        "assets/images/img.png", // ✅ default image
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                      : Image.asset(
+                                    "assets/images/img.png", // ✅ default image
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-
                                 Positioned.fill(
                                   child: Container(
                                     decoration: const BoxDecoration(
@@ -357,7 +387,7 @@ class _AllDistributorsPageState extends State<AllDistributorsPage> {
                                             children: [
                                               const Center(
                                                 child: Text(
-                                                  "See more",
+                                                  "View Details",
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w500,

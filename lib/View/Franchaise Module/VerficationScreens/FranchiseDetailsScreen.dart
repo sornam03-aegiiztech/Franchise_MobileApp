@@ -45,6 +45,8 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
       if (type == "owner") controller.ownerImageFile = file;
       if (type == "gov") controller.govIdFile = file;
       if (type == "license") controller.licenseFile = file;
+      if (type == "sub1") controller.subImage1 = file;
+      if (type == "sub2") controller.subImage2 = file;
     }
   }
 
@@ -258,8 +260,21 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
 
         const SizedBox(height: 15),
 
-        _buildUploadBox("Upload Inner Image", "inner"),
+        _buildUploadBox("Upload Main Image", "inner"),
 
+        const SizedBox(height: 15),
+
+        Row(
+          children: [
+            Expanded(
+              child: _buildUploadBox("Sub Image 1", "sub1"),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildUploadBox("Sub Image 2", "sub2"),
+            ),
+          ],
+        ),
         const SizedBox(height: 15),
         Container(
           padding: const EdgeInsets.all(16),
@@ -307,6 +322,8 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
         ),
         const SizedBox(height: 15),
         _buildTextField("Business Email",controller: controller.emailController),
+        const SizedBox(height: 15),
+        _buildTextField("Address",controller: controller.addressController),
 
         const SizedBox(height: 30),
 
@@ -354,6 +371,13 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             return;
           }
 
+          if (controller.addressController.text
+              .trim()
+              .isEmpty) {
+            EasyLoading.showToast("Enter Address");
+            return;
+          }
+
           if (controller.mobileController.text
               .trim()
               .isEmpty) {
@@ -377,6 +401,8 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             EasyLoading.showToast("Enter valid Email");
             return;
           }
+
+
 
 
           setState(() {
@@ -415,6 +441,19 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
         _buildTextField("Franchise Fee",controller: controller.feeController),
         const SizedBox(height: 15),
         _buildTextField("Liquid Capital Required",controller: controller.capitalController),
+        const SizedBox(height: 15),
+        _buildTextField("Units",controller: controller.unitController),
+
+        const SizedBox(height: 15),
+        _buildTextField("Regions",controller: controller.regionsController),
+        const SizedBox(height: 15),
+        _buildTextField("Term / Agreement Period", controller: controller.termController),
+        const SizedBox(height: 15),
+        _buildTextField("Available Hours",controller: controller.availableController),
+
+        const SizedBox(height: 15),
+        _buildBenefits(),
+
 
         const SizedBox(height: 30),
 
@@ -437,6 +476,30 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
               .trim()
               .isEmpty) {
             EasyLoading.showToast("Enter Liquid Capital Required");
+            return;
+          }
+          if (controller.unitController.text.isEmpty) {
+            EasyLoading.showToast("Enter Units");
+            return;
+          }
+
+          if (controller.regionsController.text.isEmpty) {
+            EasyLoading.showToast("Enter Regions");
+            return;
+          }
+
+          if (controller.termController.text.isEmpty) {
+            EasyLoading.showToast("Enter Term");
+            return;
+          }
+
+          if (controller.availableController.text.isEmpty) {
+            EasyLoading.showToast("Enter Available Hours");
+            return;
+          }
+
+          if (controller.selectedBenefits.isEmpty) {
+            EasyLoading.showToast("Select Benefits");
             return;
           }
 
@@ -500,10 +563,7 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
   Widget _buildDropdown() {
     return Obx(() {
 
-      /// 🔥 LOADING
-      if (servicesController.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
-      }
+
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -541,15 +601,9 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
             }).toList(),
 
             /// 🔥 ON CHANGE → API CALL
-            onChanged: (value) {
-
-              controller.selectedCategory.value = value!;
-
-              allcontroller.getFranchises(
-                search: allcontroller.searchText.value,
-                category: value == "All" ? "" : value, // 🔥 important
-              );
-            },
+              onChanged: (value) {
+                controller.selectedCategory.value = value!;
+              },
           ),
         ),
       );
@@ -652,6 +706,42 @@ class _FranchiseDetailsScreenState extends State<FranchiseDetailsScreen> {
         ),
       ),
     );
+  }
+
+
+  Widget _buildBenefits() {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Key Benefits",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 10),
+
+          ...controller.benefitsList.map((benefit) {
+            return CheckboxListTile(
+              value: controller.selectedBenefits.contains(benefit),
+              onChanged: (value) {
+                if (value == true) {
+                  controller.selectedBenefits.add(benefit);
+                } else {
+                  controller.selectedBenefits.remove(benefit);
+                }
+              },
+              title: Text(
+                benefit,
+                style: const TextStyle(color: Colors.white),
+              ),
+              activeColor: Colors.red,
+              checkColor: Colors.white,
+              controlAffinity: ListTileControlAffinity.leading,
+            );
+          }).toList(),
+        ],
+      );
+    });
   }
   /// BUTTON
 

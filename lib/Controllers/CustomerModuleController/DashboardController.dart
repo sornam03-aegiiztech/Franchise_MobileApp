@@ -205,6 +205,11 @@ class AllFranchiseController extends GetxController {
 
       String? token = AppConfig.pref.getString("token");
 
+      if (token == null || token.isEmpty) {
+        EasyLoading.showError("Session expired. Login again");
+        return;
+      }
+
       final response = await http.get(
         Uri.parse(
           "${AppConfig.baseURL}all_franchises?page=${currentPage.value}&search=$search&category=$category",
@@ -218,6 +223,7 @@ class AllFranchiseController extends GetxController {
       final data = jsonDecode(response.body);
 
       print("FRANCHISE RESPONSE → $data");
+      print("TOKEN → $token");
 
       if (data["status"] == 200) {
 

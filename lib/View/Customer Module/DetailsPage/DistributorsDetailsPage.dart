@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../../../main.dart';
 import '../Contact/DistributorContact.dart';
 import '../Subscriptions/PremiumScreen.dart';
 
@@ -45,13 +46,26 @@ class _DistributorsDetailsPageState
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xff1F1F1F),
+      backgroundColor: const Color(0xff2A2A2A),
       resizeToAvoidBottomInset: true,
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
+
 
         final data = controller.details.value;
 
@@ -78,11 +92,10 @@ class _DistributorsDetailsPageState
                         "${AppConfig.imageURL}${data.logo}",
                         fit: BoxFit.cover,
                       )
-                          : Container(
-                        color: Colors.black26,
-                        child: const Icon(Icons.image,
-                            color: Colors.white),
-                      ),
+                          :Image.asset(
+              "assets/images/img.png", // ✅ default image
+              fit: BoxFit.cover,
+            ),
                     ),
 
                     Padding(

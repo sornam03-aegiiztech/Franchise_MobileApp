@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:franchaise_app/Controllers/CustomerModuleController/DashboardController.dart';
+import 'package:franchaise_app/View/Customer%20Module/DetailsPage/FranchiseDetailsPage.dart';
 import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
+import '../../../main.dart';
+import '../DetailsPage/DistributorsDetailsPage.dart';
 
 class FavouritePage extends StatefulWidget {
   const FavouritePage({super.key});
@@ -164,7 +168,19 @@ class _FavouritePageState extends State<FavouritePage> {
 
                     /// 🔥 First Loading
                     if (controller.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            FoldingCubeWidget(size: 60),
+                            SizedBox(height: 15),
+                            Text(
+                              "Loading...",
+                              style: TextStyle(color: Colors.white70),
+                            )
+                          ],
+                        ),
+                      );
                     }
 
                     /// 🔥 Empty State
@@ -219,7 +235,8 @@ class _FavouritePageState extends State<FavouritePage> {
 
                           final item = controller.favouriteList[index];
                           final details = item['details'] ?? {};
-                          final role = item['business_role'] ?? ""; // 🔥 IMPORTANT
+                          final role = item['business_role'] ?? "";
+                          final businessId = details['business_id']?.toString() ?? "";// 🔥 IMPORTANT
 
                           String title = "";
                           String subtitle = "";
@@ -245,6 +262,7 @@ class _FavouritePageState extends State<FavouritePage> {
                             subtitle: subtitle,
                             category: category,
                             image: imageUrl,
+                            businessId: businessId, role: role,
                           );
                         },
                       ),
@@ -265,7 +283,9 @@ class _FavouritePageState extends State<FavouritePage> {
     required String title,
     required String subtitle,
     required String category,
-    required String image
+    required String image,
+    required String role,
+    required String businessId,
   }){
 
     return Stack(
@@ -373,21 +393,36 @@ class _FavouritePageState extends State<FavouritePage> {
               const SizedBox(height:15),
 
               /// BUTTON
-              Container(
-                height:45,
-                width: double.infinity,
-
-                decoration: BoxDecoration(
-                  color: buttontheme,
-                  borderRadius: BorderRadius.circular(25),
-                ),
-
-                child: const Center(
-                  child: Text(
-                    "View Details",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  if (role == "Distributor") {
+                    Get.to(() => DistributorsDetailsPage(
+                      type: "Distributor", // ✅ proper value
+                      businessId: businessId,
+                    ));
+                  } else if (role == "Franchise") {
+                    Get.to(() => FranchiseDetailsPage(
+                      type: "Franchise",
+                      businessId: businessId,
+                    ));
+                  } else {
+                    EasyLoading.showError("Invalid role");
+                  }
+                },
+                child: Container(
+                  height: 45,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: buttontheme,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "View Details",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

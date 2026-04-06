@@ -113,23 +113,7 @@ class DistributorRegisterController extends GetxController {
             email: emailController.text,
           ));
 
-          AppConfig.httpPost("send_otp", {
-            "email": emailController.text,
-            "role": "Distributor",
-          }).then((otpResponse) {
-            if (otpResponse != null) {
-              String otpMsg =
-                  otpResponse["message"] ?? "OTP sending failed";
 
-              if (otpResponse["status"] == 200) {
-                EasyLoading.showSuccess(otpMsg);
-              } else {
-                EasyLoading.showError(otpMsg);
-              }
-            } else {
-              EasyLoading.showError("OTP API failed");
-            }
-          });
 
         } else {
           EasyLoading.showError(message);
@@ -182,6 +166,13 @@ class DistributorOtpController extends GetxController {
         if (response["status"] == 200) {
 
           EasyLoading.showSuccess(message);
+
+          if (response["token"] != null) {
+            await AppConfig.pref.setString(
+              "token",
+              response["token"].toString(),
+            );
+          }
 
 
 
@@ -244,10 +235,9 @@ class DistributorOtpController extends GetxController {
 }
 
 
-
 class DistributorLoginController extends GetxController {
   var emailController = TextEditingController();
-  var passwordController= TextEditingController();
+  var passwordController = TextEditingController();
   var isPasswordHidden = true.obs;
 
   Future<void> DistributorloginUser() async {
@@ -262,7 +252,7 @@ class DistributorLoginController extends GetxController {
       final response = await AppConfig.httpPost("login", {
         "email": emailController.text.trim(),
         "role": "Distributor",
-        "password":passwordController.text.trim(),
+        "password": passwordController.text.trim(),
       });
 
       EasyLoading.dismiss();
@@ -276,27 +266,37 @@ class DistributorLoginController extends GetxController {
       String message = response["message"] ?? "Something went wrong";
       String error = response["error"] ?? "";
 
-
       if (status != 200) {
-        EasyLoading.showError(
-            error.isNotEmpty ? error : message );
+        EasyLoading.showError(error.isNotEmpty ? error : message);
         return;
       }
 
+      // 🔥 APPROVAL CHECK START
+      var approval = response["approval_status"];
+
+      String? generalStatus = approval?["general_status"];
+      String? contactStatus = approval?["contact_status"];
+      String? verificationStatus = approval?["verification_status"];
+
+      if (generalStatus != "Approved" ||
+          contactStatus != "Approved" ||
+          verificationStatus != "Approved") {
+        EasyLoading.showError("Waiting for document verification");
+        return;
+      }
+      // 🔥 APPROVAL CHECK END
+
       EasyLoading.showSuccess(message);
 
-
+      // Save token
       if (response["token"] != null) {
         await AppConfig.pref.setString(
           "token",
           response["token"].toString(),
         );
-
-        print("TOKEN SAVED → ${response["token"]}");
       }
 
       var user = response["user"];
-
 
       if (user != null) {
         await AppConfig.pref.setString(
@@ -311,25 +311,21 @@ class DistributorLoginController extends GetxController {
         await AppConfig.pref.setString(
             "owner_name", user["owner_name"] ?? "");
 
-        // await AppConfig.pref.setString(
-        //     "email", user["business_email"] ?? "");
-
         await AppConfig.pref.setString(
             "mobile", user["business_mobile"] ?? "");
 
         await AppConfig.pref.setString(
-            "role", user["role"] ?? "Franchise"); // backup save
+            "role", user["role"] ?? "Distributor"); // ✅ correct role
       }
 
-
       Get.offAll(() => DistributionBottomBarScreen());
-
     } catch (e) {
       EasyLoading.dismiss();
       EasyLoading.showError("Error: ${e.toString()}");
     }
   }
 }
+
 
 
 

@@ -74,17 +74,17 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                             : const AssetImage("assets/images/profile.png") as ImageProvider,
                       ),
 
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white10,
-                        ),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.white,
-                        ),
-                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.all(10),
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.circle,
+                      //     color: Colors.white10,
+                      //   ),
+                      //   child: const Icon(
+                      //     Icons.notifications_none,
+                      //     color: Colors.white,
+                      //   ),
+                      // ),
                     ],
                   )),
 
@@ -235,8 +235,14 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                             children: [
                                               Positioned.fill(
                                                 child: Image.network(
-                                                  "${AppConfig.imageURL}${data["brand_owner_image"]}",
+                                                  "${AppConfig.imageURL}${data["brand_owner_image"] ?? ""}",
                                                   fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    return Image.asset(
+                                                      "assets/images/img_1.png",
+                                                      fit: BoxFit.cover,
+                                                    );
+                                                  },
                                                 ),
                                               ),
 
@@ -294,7 +300,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      data["business_name"],
+                                                      data["business_name"]?? "",
                                                       style: const TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 18,
@@ -303,7 +309,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                       ),
                                                     ),
                                                     Text(
-                                                      "₹ ${data["total_invesment"]}",
+                                                      "₹ ${data["total_invesment"]?? "0"}",
                                                       style: const TextStyle(
                                                         color: Colors.white70,
                                                       ),
@@ -487,8 +493,20 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                     child: Stack(
                                       children: [
                                         Positioned.fill(
-                                          child: Image.network(
+                                          child: (data["brand_logo"] != null &&
+                                              data["brand_logo"].toString().isNotEmpty)
+                                              ? Image.network(
                                             "${AppConfig.imageURL}${data["brand_logo"]}",
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Image.asset(
+                                                "assets/images/img.png", // ✅ default image
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                          )
+                                              : Image.asset(
+                                            "assets/images/img.png", // ✅ default image
                                             fit: BoxFit.cover,
                                           ),
                                         ),
@@ -541,7 +559,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                         MainAxisAlignment.center,
                                                     children: [
                                                       Text(
-                                                        data["brand_name"],
+                                                        data["brand_name"]??"",
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                           fontWeight:
@@ -550,7 +568,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                       ),
 
                                                       Text(
-                                                        data["city"],
+                                                        data["city"]??"",
                                                         style: const TextStyle(
                                                           color: Colors.white70,
                                                           fontSize: 8,

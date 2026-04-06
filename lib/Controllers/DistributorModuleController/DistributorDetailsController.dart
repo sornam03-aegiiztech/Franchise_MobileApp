@@ -24,6 +24,19 @@ class DistributorDetailsController extends GetxController {
 
   final idNumberCtrl = TextEditingController();
   final gstCtrl = TextEditingController();
+  var selectedCategory = "".obs;
+
+
+  var selectedProducts = <String>[].obs;
+
+  List<String> productList = [
+    "Food & Beverages",
+    "Clothing",
+    "Electronics",
+    "Grocery",
+    "Pharmacy",
+    "Others",
+  ];
 
 
 
@@ -85,6 +98,7 @@ class DistributorDetailsController extends GetxController {
         "id_document_type": idType,
         "document_id_number": idNumber,
         "rigistration_number": gst,
+        "product_handled": selectedProducts.join(","),
       });
 
 

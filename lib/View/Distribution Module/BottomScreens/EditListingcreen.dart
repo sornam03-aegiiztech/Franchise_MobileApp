@@ -7,7 +7,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../Appconfig.dart';
+import '../../../Controllers/CustomerModuleController/DashboardController.dart';
 import '../../../Controllers/DistributorModuleController/EditListingController.dart';
+import '../../../main.dart';
 
 class DistributionEditListingScreen extends StatefulWidget {
   const DistributionEditListingScreen({super.key});
@@ -110,7 +112,19 @@ class _DistributionEditListingScreenState extends State<DistributionEditListingS
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -534,10 +548,12 @@ class _DistributionEditListingScreenState extends State<DistributionEditListingS
 
   /// DROPDOWN
   Widget _buildDropdown() {
+
+    final serviceController = Get.put(ServicesController());
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         const Text(
           "Business Category",
           style: TextStyle(color: Colors.white70),
@@ -546,7 +562,7 @@ class _DistributionEditListingScreenState extends State<DistributionEditListingS
         const SizedBox(height: 6),
 
         Container(
-          width: double.infinity, // WIDTH INCREASE
+          width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
             color: const Color(0xff3a3a3a),
@@ -554,47 +570,61 @@ class _DistributionEditListingScreenState extends State<DistributionEditListingS
             border: Border.all(color: Colors.white),
           ),
           child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              dropdownColor: const Color(0xff3a3a3a),
-              value: categoryValue,
-              isExpanded: true,
+            child: Obx(() {
 
-              items: const [
-                DropdownMenuItem(
-                    value: "Food Industry",
-                    child: Text("Food Industry",
-                        style: TextStyle(color: Colors.white))),
+              /// 🔴 LOADING STATE
+              if (serviceController.isLoading.value) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    "Loading...",
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                );
+              }
 
-                DropdownMenuItem(
-                    value: "Retail",
-                    child: Text("Retail",
-                        style: TextStyle(color: Colors.white))),
+              /// 🔴 EMPTY SAFETY
+              if (serviceController.tabs.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    "No services",
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                );
+              }
 
-                DropdownMenuItem(
-                    value: "Education",
-                    child: Text("Education",
-                        style: TextStyle(color: Colors.white))),
+              return DropdownButton<String>(
+                dropdownColor: const Color(0xff3a3a3a),
 
-                DropdownMenuItem(
-                    value: "Healthcare",
-                    child: Text("Healthcare",
-                        style: TextStyle(color: Colors.white))),
+                /// ✅ SAFE VALUE
+                value: serviceController.tabs.contains(controller.category.value)
+                    ? controller.category.value
+                    : serviceController.tabs.first,
 
-                DropdownMenuItem(
-                    value: "Technology",
-                    child: Text("Technology",
-                        style: TextStyle(color: Colors.white))),
-              ],
+                isExpanded: true,
 
-              onChanged: (value) {
-                setState(() {
-                  categoryValue = value!;
-                  controller.categoryController.text = value;
-                });
-              },
-            ),
+                /// ✅ API ITEMS
+                items: serviceController.tabs.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(
+                      item,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                }).toList(),
+
+                /// ✅ UPDATE VALUE
+                onChanged: (value) {
+                  if (value != null) {
+                    controller.category.value = value;
+                  }
+                },
+              );
+            }),
           ),
-        )
+        ),
       ],
     );
   }

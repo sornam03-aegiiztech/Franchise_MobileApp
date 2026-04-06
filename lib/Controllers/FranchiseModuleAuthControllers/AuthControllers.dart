@@ -113,23 +113,7 @@ class RegisterController extends GetxController {
             email: emailController.text,
           ));
 
-          AppConfig.httpPost("send_otp", {
-            "email": emailController.text,
-            "role": "Franchise",
-          }).then((otpResponse) {
-            if (otpResponse != null) {
-              String otpMsg =
-                  otpResponse["message"] ?? "OTP sending failed";
 
-              if (otpResponse["status"] == 200) {
-                EasyLoading.showSuccess(otpMsg);
-              } else {
-                EasyLoading.showError(otpMsg);
-              }
-            } else {
-              EasyLoading.showError("OTP API failed");
-            }
-          });
 
         } else {
           EasyLoading.showError(message);
@@ -177,7 +161,12 @@ class OtpController extends GetxController {
           EasyLoading.showSuccess(message);
 
 
-
+          if (response["token"] != null) {
+            await AppConfig.pref.setString(
+              "token",
+              response["token"].toString(),
+            );
+          }
 
           if (response["role"] != null) {
             await AppConfig.pref.setString(
@@ -243,6 +232,88 @@ class LoginController extends GetxController {
   var passwordController=TextEditingController();
   var isPasswordHidden = true.obs;
 
+  // Future<void> loginUser() async {
+  //   try {
+  //     if (!GetUtils.isEmail(emailController.text.trim())) {
+  //       EasyLoading.showError("Enter valid Email");
+  //       return;
+  //     }
+  //
+  //     EasyLoading.show(status: "Logging in...");
+  //
+  //     final response = await AppConfig.httpPost("login", {
+  //       "email": emailController.text.trim(),
+  //       "password": passwordController.text.trim(),
+  //       "role": "Franchise",
+  //     });
+  //     print("LOGIN RESPONSE → $response");
+  //
+  //     EasyLoading.dismiss();
+  //
+  //     if (response == null) {
+  //       EasyLoading.showError("Server error");
+  //       return;
+  //     }
+  //
+  //
+  //     var status = response["status"];
+  //     String message = response["message"] ?? "Something went wrong";
+  //     String error = response["error"] ?? "";
+  //
+  //
+  //     if (status != 200) {
+  //       EasyLoading.showError(
+  //           error.isNotEmpty ? error : message );
+  //       return;
+  //     }
+  //
+  //     EasyLoading.showSuccess(message);
+  //
+  //
+  //     if (response["token"] != null) {
+  //       await AppConfig.pref.setString(
+  //         "token",
+  //         response["token"].toString(),
+  //       );
+  //
+  //       print("TOKEN SAVED → ${response["token"]}");
+  //     }
+  //
+  //     var user = response["user"];
+  //
+  //
+  //     if (user != null) {
+  //       await AppConfig.pref.setString(
+  //           "user_id", user["id"]?.toString() ?? "");
+  //
+  //       await AppConfig.pref.setString(
+  //           "business_id", user["business_id"]?.toString() ?? "");
+  //
+  //       await AppConfig.pref.setString(
+  //           "business_name", user["business_name"] ?? "");
+  //
+  //       await AppConfig.pref.setString(
+  //           "owner_name", user["owner_name"] ?? "");
+  //
+  //       // await AppConfig.pref.setString(
+  //       //     "email", user["business_email"] ?? "");
+  //
+  //       await AppConfig.pref.setString(
+  //           "mobile", user["business_mobile"] ?? "");
+  //
+  //       await AppConfig.pref.setString(
+  //           "role", user["role"] ?? "Franchise"); // backup save
+  //     }
+  //
+  //
+  //     Get.offAll(() => BottomBarScreen());
+  //
+  //   } catch (e) {
+  //     EasyLoading.dismiss();
+  //     EasyLoading.showError("Error: ${e.toString()}");
+  //   }
+  // }
+
   Future<void> loginUser() async {
     try {
       if (!GetUtils.isEmail(emailController.text.trim())) {
@@ -257,7 +328,6 @@ class LoginController extends GetxController {
         "password": passwordController.text.trim(),
         "role": "Franchise",
       });
-      print("LOGIN RESPONSE → $response");
 
       EasyLoading.dismiss();
 
@@ -266,32 +336,43 @@ class LoginController extends GetxController {
         return;
       }
 
-
       var status = response["status"];
       String message = response["message"] ?? "Something went wrong";
       String error = response["error"] ?? "";
 
-
       if (status != 200) {
-        EasyLoading.showError(
-            error.isNotEmpty ? error : message );
+        EasyLoading.showError(error.isNotEmpty ? error : message);
         return;
       }
 
+      // 🔥 NEW LOGIC START HERE
+      var approval = response["approval_status"];
+
+      String? generalStatus = approval?["general_status"];
+      String? contactStatus = approval?["contact_status"];
+      String? verificationStatus = approval?["verification_status"];
+
+      // ❌ If any is null or not Approved → block login
+      if (generalStatus != "Approved" ||
+          contactStatus != "Approved" ||
+          verificationStatus != "Approved") {
+
+        EasyLoading.showError("Waiting for document verification");
+        return;
+      }
+      // 🔥 NEW LOGIC END HERE
+
       EasyLoading.showSuccess(message);
 
-
+      // Save token
       if (response["token"] != null) {
         await AppConfig.pref.setString(
           "token",
           response["token"].toString(),
         );
-
-        print("TOKEN SAVED → ${response["token"]}");
       }
 
       var user = response["user"];
-
 
       if (user != null) {
         await AppConfig.pref.setString(
@@ -306,16 +387,12 @@ class LoginController extends GetxController {
         await AppConfig.pref.setString(
             "owner_name", user["owner_name"] ?? "");
 
-        // await AppConfig.pref.setString(
-        //     "email", user["business_email"] ?? "");
-
         await AppConfig.pref.setString(
             "mobile", user["business_mobile"] ?? "");
 
         await AppConfig.pref.setString(
-            "role", user["role"] ?? "Franchise"); // backup save
+            "role", user["role"] ?? "Franchise");
       }
-
 
       Get.offAll(() => BottomBarScreen());
 

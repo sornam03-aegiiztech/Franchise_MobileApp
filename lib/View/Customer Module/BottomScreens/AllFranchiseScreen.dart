@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
+import 'package:franchaise_app/main.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
@@ -129,6 +130,7 @@ class _AllFranchisePageState extends State<AllFranchisePage> {
                           );
                         },
                         child: Container(
+                          alignment: Alignment.center,
                           margin: EdgeInsets.only(right: width * 0.03),
                           padding: EdgeInsets.symmetric(
                             horizontal: width * 0.05,
@@ -159,8 +161,21 @@ class _AllFranchisePageState extends State<AllFranchisePage> {
 
                   /// 🔄 LOADING
                   if (allcontroller.isLoading.value) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          FoldingCubeWidget(size: 60),
+                          SizedBox(height: 15),
+                          Text(
+                            "Loading...",
+                            style: TextStyle(color: Colors.white70),
+                          )
+                        ],
+                      ),
+                    );
                   }
+
 
                   /// 🔥 REFRESH INDICATOR WRAP FULL
                   return RefreshIndicator(
@@ -206,8 +221,14 @@ class _AllFranchisePageState extends State<AllFranchisePage> {
                                 /// IMAGE
                                 Positioned.fill(
                                   child: Image.network(
-                                    "${AppConfig.imageURL}${data["brand_owner_image"]}",
+                                    "${AppConfig.imageURL}${data["brand_owner_image"] ?? ""}",
                                     fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        "assets/images/img_1.png",
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
                                   ),
                                 ),
 
@@ -343,7 +364,7 @@ class _AllFranchisePageState extends State<AllFranchisePage> {
                                             children: [
                                               const Center(
                                                 child: Text(
-                                                  "See more",
+                                                  "View Details",
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.w500,

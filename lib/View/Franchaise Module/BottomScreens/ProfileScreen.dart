@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:franchaise_app/ChoosejourneyScreen.dart';
+import 'package:franchaise_app/Constants/utlity.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/LoginScreen.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/BottomScreens/SubscriptionScreen.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,8 @@ import '../../../Constants/Colors.dart';
 import '../../../Controllers/FranchiseModuleAuthControllers/AuthControllers.dart';
 import '../../../Controllers/FranchiseModuleAuthControllers/ProfileController.dart';
 import '../ProfileModule/EditProfileScreen.dart';
+import '../ProfileModule/PrivacyPolicy.dart';
+import '../ProfileModule/TermsandConditions.dart';
 
 
 
@@ -18,183 +22,199 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff2b2b2b),
-              Color(0xff1f1f1f),
-            ],
+    return Utility.checkInternetManagerWidget(
+      Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xff2b2b2b),
+                Color(0xff1f1f1f),
+              ],
+            ),
           ),
-        ),
 
-        child: SafeArea(
-          child: SingleChildScrollView(   // ✅ SCROLL ADDED
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          child: SafeArea(
+            child: SingleChildScrollView(   // ✅ SCROLL ADDED
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
 
-                  /// Top Bar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-
-
-                      Center(
-                        child: Text(
-                          "Profile",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ),
-
-
-                    ],
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  /// Profile Image
-                  Obx(() => Center(
-                    child: Column(
+                    /// Top Bar
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
 
-                        Stack(
-                          children: [
 
-                            CircleAvatar(
-                              radius: 48,
-                              backgroundImage: controller.profileImage.value.isNotEmpty
-                                  ? NetworkImage(controller.profileImage.value)
-                                  : const AssetImage("assets/images/profile.png")
-                              as ImageProvider,
-                            ),
-
-                            Positioned(
-                              bottom: 6,
-                              right: 6,
-                              child: Container(
-                                height: 16,
-                                width: 16,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                              ),
-                            )
-                          ],
+                        Center(
+                          child: Text(
+                            "Profile",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600),
+                          ),
                         ),
 
-                        const SizedBox(height: 10),
 
-                        /// OWNER NAME
-                        Text(
-                          controller.ownerName.value,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        /// BUSINESS NAME
-                        Text(
-                          controller.businessName.value,
-                          style: const TextStyle(color: Colors.white54),
-                        )
                       ],
                     ),
-                  )),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  /// Account Settings
-                  const Text(
-                    "Account Settings",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
-                  ),
+                    /// Profile Image
+                    Obx(() => Center(
+                      child: Column(
+                        children: [
 
-                  const SizedBox(height: 14),
+                          Stack(
+                            children: [
 
-                  InkWell(
-                    onTap: (){
-                      Get.to(ProfileEditScreen());
-                    },
-                      child: _menuTile(Icons.person_outline, "Edit Profile")),
-                  const SizedBox(height: 12),
-              InkWell(
-                onTap: (){
-                  Get.to(SubscriptionScreen());
-                },
-                  child: _menuTile(Icons.workspace_premium_outlined, "Subscription")),
+                              CircleAvatar(
+                                radius: 48,
+                                backgroundImage: controller.profileImage.value.isNotEmpty
+                                    ? NetworkImage(controller.profileImage.value)
+                                    : const AssetImage("assets/images/profile.png")
+                                as ImageProvider,
+                              ),
 
-                  const SizedBox(height: 25),
+                              Positioned(
+                                bottom: 6,
+                                right: 6,
+                                child: Container(
+                                  height: 16,
+                                  width: 16,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
 
-                  /// Support & Legal
-                  const Text(
-                    "Support & Legal",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
-                  ),
+                          const SizedBox(height: 10),
 
-                  const SizedBox(height: 14),
+                          /// OWNER NAME
+                          Text(
+                            controller.ownerName.value,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600),
+                          ),
 
-                  _menuTile(Icons.language, "Choose language"),
-                  const SizedBox(height: 12),
-                  _menuTile(Icons.security_outlined, "Security"),
-                  const SizedBox(height: 12),
-                  _menuTile(Icons.help_outline, "Help & Support"),
+                          const SizedBox(height: 4),
 
-                  const SizedBox(height: 40),
+                          /// BUSINESS NAME
+                          Text(
+                            controller.businessName.value,
+                            style: const TextStyle(color: Colors.white54),
+                          )
+                        ],
+                      ),
+                    )),
 
-                  /// Logout Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff7a2c2c),
-                        padding:
-                        const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.circular(30),
+                    const SizedBox(height: 30),
+
+                    /// Account Settings
+                    const Text(
+                      "Account Settings",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    InkWell(
+                      onTap: (){
+                        Get.to(ProfileEditScreen());
+                      },
+                        child: _menuTile(Icons.person_outline, "Edit Profile")),
+                    const SizedBox(height: 12),
+                InkWell(
+                  onTap: (){
+                    Get.to(SubscriptionScreen());
+                  },
+                    child: _menuTile(Icons.workspace_premium_outlined, "Subscription")),
+
+                    const SizedBox(height: 25),
+
+                    /// Support & Legal
+                    const Text(
+                      "Support & Legal",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    InkWell(
+                      onTap: (){
+                        Get.to(FranchiseTermsScreen());
+                      },
+                        child: _menuTile(Icons.description, "Terms & Conditions")),
+                    const SizedBox(height: 12),
+                    InkWell(
+                      onTap: (){
+                        Get.to(FranchisePrivacyPolicyScreen());
+                      },
+                        child: _menuTile(Icons.security_outlined, "Privacy Policy")),
+                    const SizedBox(height: 12),
+                    _menuTile(Icons.help_outline, "Help & Support"),
+
+                    const SizedBox(height: 40),
+
+                    /// Logout Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff7a2c2c),
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () {
+                          _showLogoutDialog(context);
+                        },
+                        icon: const Icon(Icons.power_settings_new,color: Color(0xffFF4A4A),),
+                        label: const Text(
+                          "Log Out",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,color: Color(0xffFF4A4A)),
                         ),
                       ),
-                      onPressed: () {
-                        _showLogoutDialog(context);
-                      },
-                      icon: const Icon(Icons.power_settings_new,color: Color(0xffFF4A4A),),
-                      label: const Text(
-                        "Log Out",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,color: Color(0xffFF4A4A)),
-                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20)
-                ],
+                    const SizedBox(height: 20)
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
+          () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => this),
+        );
+      },
     );
   }
 
@@ -244,11 +264,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               onPressed: () async {
 
-                await AppConfig.pref.clear(); // clear saved data
-
-                Get.delete<LoginController>(); // reset controller
-
-                Get.offAll(() => Loginscreen()); // navigate
+               Get.offAll(ChooseJourneyScreen());
 
               },
               child: const Text(

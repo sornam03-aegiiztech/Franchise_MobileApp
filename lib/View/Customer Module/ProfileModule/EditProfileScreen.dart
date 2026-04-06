@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/ProfileController.dart';
+import '../../../main.dart';
 
 class CustomerProfileEditScreen extends StatefulWidget {
   const CustomerProfileEditScreen({super.key});
@@ -117,7 +118,19 @@ class _CustomerProfileEditScreenState extends State<CustomerProfileEditScreen> {
       backgroundColor: const Color(0xff1E1E1E),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
         return SafeArea(
           child: Padding(

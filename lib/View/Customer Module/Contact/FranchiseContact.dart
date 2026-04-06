@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../../../main.dart';
 
 class FranchiseContactPage extends StatefulWidget {
   final String type;
@@ -37,7 +38,19 @@ class _FranchiseContactPageState extends State<FranchiseContactPage> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
 
         final data = controller.details.value;
@@ -100,9 +113,22 @@ class _FranchiseContactPageState extends State<FranchiseContactPage> {
 
                       CircleAvatar(
                         radius: 45,
-                        backgroundImage: NetworkImage(
-                          "${AppConfig.imageURL}${data.ownerImage}",
-                        ),
+                        backgroundColor: Colors.grey.shade300,
+                        backgroundImage: (data.ownerImage != null &&
+                            data.ownerImage.toString().isNotEmpty)
+                            ? NetworkImage("${AppConfig.imageURL}${data.ownerImage}")
+                            : null,
+                        child: (data.ownerImage == null ||
+                            data.ownerImage.toString().isEmpty)
+                            ? ClipOval(
+                          child: Image.asset(
+                            "assets/images/img_2.png",
+                            fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
+                          ),
+                        )
+                            : null,
                       ),
 
                       const SizedBox(height: 10),

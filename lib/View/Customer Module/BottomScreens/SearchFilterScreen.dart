@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 
 import '../../../Appconfig.dart';
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../DetailsPage/DistributorsDetailsPage.dart';
+import '../DetailsPage/FranchiseDetailsPage.dart';
 
 class SearchFilterPage extends StatefulWidget {
   const SearchFilterPage({super.key});
@@ -40,28 +42,12 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
 
               /// TOP BAR
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
 
-                  GestureDetector(
-                    onTap: (){
-                      Get.back();
-                    },
 
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: const BoxDecoration(
-                        color: Colors.white10,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 7.0),
-                        child: const Icon(Icons.arrow_back_ios,color: Colors.white,size: 15,),
-                      ),
-                    ),
-                  ),
 
-                  const Spacer(),
+
 
                   const Text(
                     "Search & Filter",
@@ -72,9 +58,9 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                     ),
                   ),
 
-                  const Spacer(),
 
-                  const SizedBox(width:40)
+
+
 
                 ],
               ),
@@ -272,6 +258,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
 
                         Text(
                           title,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Colors.white,
@@ -284,6 +271,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
 
                         Text(
                           subtitle,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white70,
@@ -294,6 +282,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
 
                         Text(
                           category,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               color: Colors.white54,
@@ -314,22 +303,27 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                         padding: const EdgeInsets.only(right: 30.0),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: image.isNotEmpty
+                          child:image.isNotEmpty
                               ? Image.network(
                             image,
                             height: 70,
                             width: 80,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                "assets/images/img.png",
+                                height: 70,
+                                width: 80,
+                                fit: BoxFit.cover,
+                              );
+                            },
                           )
-                              : Container(
+                              : Image.asset(
+                            "assets/images/img.png",
                             height: 70,
                             width: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade800,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.image, color: Colors.white54),
-                          ),
+                            fit: BoxFit.cover,
+                          )
                         ),
                       ),
 
@@ -344,21 +338,40 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
               const SizedBox(height:15),
 
               /// BUTTON
-              Container(
-                height:45,
-                width: double.infinity,
+              GestureDetector(
+                onTap: () {
+                  String type = data["type"] == "franchise"
+                      ? "Franchise"
+                      : "Distributor";
 
-                decoration: BoxDecoration(
-                  color: buttontheme,
-                  borderRadius: BorderRadius.circular(25),
-                ),
+                  String businessId = data["business_id"]?.toString() ?? "";
 
-                child: const Center(
-                  child: Text(
-                    "View Details",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  if (type == "Distributor") {
+                    Get.to(() => DistributorsDetailsPage(
+                      type: type,
+                      businessId: businessId,
+                    ));
+                  } else {
+                    Get.to(() => FranchiseDetailsPage(
+                      type: type,
+                      businessId: businessId,
+                    ));
+                  }
+                },
+                child: Container(
+                  height: 45,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: buttontheme,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      "View Details",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

@@ -7,7 +7,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../Appconfig.dart';
+import '../../../Controllers/CustomerModuleController/DashboardController.dart';
 import '../../../Controllers/FranchiseModuleAuthControllers/EditListingController.dart';
+import '../../../main.dart';
 
 class EditListingScreen extends StatefulWidget {
   const EditListingScreen({super.key});
@@ -100,7 +102,19 @@ class _EditListingScreenState extends State<EditListingScreen> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
 
         return SingleChildScrollView(
@@ -327,7 +341,8 @@ class _EditListingScreenState extends State<EditListingScreen> {
 
   /// DROPDOWN
   Widget _buildDropdown() {
-    final List<String> categories = ["Food Industry", "Retail","Education", "Healthcare", "Technology"];
+
+    final serviceController = Get.put(ServicesController());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,18 +364,41 @@ class _EditListingScreenState extends State<EditListingScreen> {
           ),
           child: DropdownButtonHideUnderline(
             child: Obx(() {
+
+              /// 🔴 LOADING STATE
+              if (serviceController.isLoading.value) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    "Loading...",
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                );
+              }
+
+              /// 🔴 EMPTY SAFETY
+              if (serviceController.tabs.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text(
+                    "No services",
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                );
+              }
+
               return DropdownButton<String>(
                 dropdownColor: const Color(0xff3a3a3a),
 
-                /// ✅ SAFE VALUE (important)
-                value: categories.contains(controller.category.value)
+                /// ✅ SAFE VALUE
+                value: serviceController.tabs.contains(controller.category.value)
                     ? controller.category.value
-                    : categories.first,
+                    : serviceController.tabs.first,
 
                 isExpanded: true,
 
-                /// ✅ DYNAMIC ITEMS (no const)
-                items: categories.map((item) {
+                /// ✅ API ITEMS
+                items: serviceController.tabs.map((item) {
                   return DropdownMenuItem<String>(
                     value: item,
                     child: Text(

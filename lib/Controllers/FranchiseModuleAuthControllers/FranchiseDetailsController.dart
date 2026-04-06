@@ -20,11 +20,15 @@ class FranchiseController extends GetxController {
   final ownerController = TextEditingController();
   final mobileController = TextEditingController();
   final emailController = TextEditingController();
+  final addressController=TextEditingController();
 
   final investmentController = TextEditingController();
   final feeController = TextEditingController();
   final capitalController = TextEditingController();
-
+  final unitController=TextEditingController();
+  final regionsController= TextEditingController();
+  final availableController=TextEditingController();
+  final termController = TextEditingController();
   var selectedCategory = "".obs;
 
   /// ================= IMAGE FILES =================
@@ -32,6 +36,17 @@ class FranchiseController extends GetxController {
   File? ownerImageFile;
   File? govIdFile;
   File? licenseFile;
+  File? subImage1;
+  File? subImage2;
+  var selectedBenefits = <String>[].obs;
+
+  List<String> benefitsList = [
+    "Training Provided",
+    "Marketing Support",
+    "High ROI",
+    "Brand Recognition",
+    "Low Investment",
+  ];
 
   /// ================= FINAL API =================
   Future<void> addFranchise() async {
@@ -104,6 +119,14 @@ class FranchiseController extends GetxController {
       request.fields['franchise_fee'] = feeController.text;
       request.fields['liquid_capital_requried'] = capitalController.text;
       request.fields['business_id'] = businessId;
+      request.fields['units'] = unitController.text;
+      request.fields['regions'] = regionsController.text;
+      request.fields['term'] = termController.text;
+      request.fields['address'] = addressController.text;
+      request.fields['available_hours'] = availableController.text;
+
+      /// 🔥 KEY BENEFITS
+      request.fields['key_benefits_added'] = selectedBenefits.join(",");
 
 
       request.files.add(
@@ -126,6 +149,24 @@ class FranchiseController extends GetxController {
           govIdFile!.path,
         ),
       );
+
+      if (subImage1 != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'sub_image_1',
+            subImage1!.path,
+          ),
+        );
+      }
+
+      if (subImage2 != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'sub_image_2',
+            subImage2!.path,
+          ),
+        );
+      }
 
       /// Optional (license may be null)
       if (licenseFile != null) {

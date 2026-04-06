@@ -5,6 +5,7 @@ import 'package:franchaise_app/View/Customer%20Module/Contact/FranchiseContact.d
 import 'package:get/get.dart';
 
 import '../../../Controllers/CustomerModuleController/DashboardController.dart';
+import '../../../main.dart';
 import '../Subscriptions/PremiumScreen.dart';
 
 class FranchiseDetailsPage extends StatefulWidget {
@@ -42,7 +43,19 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
 
       body: Obx(() {
         if (controller.isLoading.value) {
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                FoldingCubeWidget(size: 60),
+                SizedBox(height: 15),
+                Text(
+                  "Loading...",
+                  style: TextStyle(color: Colors.white70),
+                )
+              ],
+            ),
+          );
         }
 
         final data = controller.details.value;
@@ -66,9 +79,9 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
                         "${AppConfig.imageURL}${controller.details.value!.image}",
                         fit: BoxFit.cover,
                       )
-                          : Container(
-                        color: Colors.black26,
-                        child: Icon(Icons.image, color: Colors.white),
+                          : Image.asset(
+                        "assets/images/img.png", // ✅ default image
+                        fit: BoxFit.cover,
                       ),
                   ),
 

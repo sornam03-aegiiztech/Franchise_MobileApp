@@ -79,7 +79,7 @@ class CustomerBottomBarScreen extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 8),
                     decoration: BoxDecoration(
                       color: controller.index.value == i
                           ? const Color(0xffF23E46)

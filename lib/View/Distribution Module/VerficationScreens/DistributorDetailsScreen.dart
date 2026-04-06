@@ -71,7 +71,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
   }
 
   int currentStep = 1; // Change 1,2,3 for different screens
-  String? selectedCategory;
+
 
   bool validateStep1() {
     if (brandLogo == null) {
@@ -84,7 +84,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
       return false;
     }
 
-    if (selectedCategory == null || selectedCategory!.isEmpty) {
+    if (distributorDetailsController.selectedCategory.value.isEmpty) {
       EasyLoading.showToast("Select Category");
       return false;
     }
@@ -106,6 +106,10 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
     if (distributorDetailsController.descCtrl.text.isEmpty) {
       EasyLoading.showToast("Enter Business Description");
+      return false;
+    }
+    if (distributorDetailsController.selectedProducts.isEmpty) {
+      EasyLoading.showToast("Select Products");
       return false;
     }
 
@@ -150,6 +154,11 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
     if (distributorDetailsController.postalCtrl.text.length !=6) {
       EasyLoading.showToast("Enter Valid Postal Code");
+      return false;
+    }
+
+    if (distributorDetailsController.selectedProducts.isEmpty) {
+      EasyLoading.showToast("Select at least one product");
       return false;
     }
 
@@ -293,6 +302,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
     );
   }
 
+
   /// STEP CIRCLE
   Widget _buildStep(int step) {
     bool isActive = step <= currentStep;
@@ -399,6 +409,10 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
 
               _buildTextField("Business Description", "Describe the Business of your customers", maxLines: 4,controller: distributorDetailsController.descCtrl),
+
+              const SizedBox(height: 15),
+
+              _buildProductHandled(),
 
             ],
           ),
@@ -630,7 +644,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
                   document: document,
 
                   brandName: distributorDetailsController.brandNameCtrl.text,
-                  category: selectedCategory ?? "",
+                  category: distributorDetailsController.selectedCategory.value,
                   territory: distributorDetailsController.territoryCtrl.text,
                   units: distributorDetailsController.unitsCtrl.text,
                   days: distributorDetailsController.daysCtrl.text,
@@ -653,6 +667,46 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
         ],
       ),
     );
+  }
+
+
+
+  Widget _buildProductHandled() {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Product Handled",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          ...distributorDetailsController.productList.map((product) {
+            return CheckboxListTile(
+              value: distributorDetailsController.selectedProducts.contains(product),
+              onChanged: (value) {
+                if (value == true) {
+                  distributorDetailsController.selectedProducts.add(product);
+                } else {
+                  distributorDetailsController.selectedProducts.remove(product);
+                }
+              },
+              title: Text(
+                product,
+                style: const TextStyle(color: Colors.white),
+              ),
+              activeColor: Colors.red,
+              checkColor: Colors.white,
+              controlAffinity: ListTileControlAffinity.leading,
+            );
+          }).toList(),
+        ],
+      );
+    });
   }
 
   Widget _buildDropdownField(String label, String value) {
@@ -842,7 +896,8 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
         const Text(
           "Business Category",
           style: TextStyle(
-            color: Colors.white70,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
             fontSize: 14,
           ),
         ),
@@ -864,7 +919,9 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: selectedCategory,
+                value: distributorDetailsController.selectedCategory.value.isEmpty
+                    ? null
+                    : distributorDetailsController.selectedCategory.value,
                 hint: const Text(
                   "Select Category",
                   style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -884,15 +941,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
                 /// 🔥 ON CHANGE
                 onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-
-                  /// 🔥 API CALL (filter)
-                  allcontroller.getDistributor(
-                    search: allcontroller.searchText.value,
-                    category: value == "All" ? "" : value!,
-                  );
+                  distributorDetailsController.selectedCategory.value = value!;
                 },
               ),
             ),

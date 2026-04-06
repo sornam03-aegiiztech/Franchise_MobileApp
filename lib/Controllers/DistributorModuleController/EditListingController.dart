@@ -43,6 +43,7 @@ class DistributorEditListingController extends GetxController {
   var isLoading = false.obs;
   var brandImageUrl = "".obs;
   var ownerImageUrl = "".obs;
+  var category = "".obs;
 
 
   bool validateFields() {
