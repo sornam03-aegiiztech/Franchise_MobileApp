@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Customer%20Module/DetailsPage/FranchiseDetailsPage.dart';
 import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/OTPScreen.dart';
+import 'package:franchaise_app/View/Franchaise%20Module/AuthModule/RegisterScreen.dart';
 import 'package:get/get.dart';
 
 import '../../Appconfig.dart';
@@ -341,6 +342,17 @@ class LoginController extends GetxController {
       String error = response["error"] ?? "";
 
       if (status != 200) {
+
+        if (message == "Account is not active" || message == "Account is blocked") {
+          EasyLoading.showError(message);
+
+
+          Future.delayed(Duration(seconds: 1), () {
+            Get.offAll(() => Registerscreen());
+          });
+
+          return;
+        }
         EasyLoading.showError(error.isNotEmpty ? error : message);
         return;
       }
@@ -415,6 +427,7 @@ class ForgotPasswordController extends GetxController {
         EasyLoading.showError("Enter valid Email");
         return;
       }
+      Get.to(Registerscreen());
 
       EasyLoading.show(status: "Sending OTP...");
 

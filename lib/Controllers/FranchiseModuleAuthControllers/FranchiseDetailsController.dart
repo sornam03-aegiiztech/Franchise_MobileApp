@@ -149,20 +149,22 @@ class FranchiseController extends GetxController {
           govIdFile!.path,
         ),
       );
-
       if (subImage1 != null) {
+        print("SUB IMAGE 1 → ${subImage1?.path}");
+
         request.files.add(
           await http.MultipartFile.fromPath(
-            'sub_image_1',
+            'multible_image[]',
             subImage1!.path,
           ),
         );
       }
 
       if (subImage2 != null) {
+        print("SUB IMAGE 2 → ${subImage2?.path}");
         request.files.add(
           await http.MultipartFile.fromPath(
-            'sub_image_2',
+            'multible_image[]',
             subImage2!.path,
           ),
         );

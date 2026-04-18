@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Distribution%20Module/AuthModule/ForgotPasswordScreen.dart';
+import 'package:franchaise_app/View/Distribution%20Module/AuthModule/RegisterScreen.dart';
 import 'package:franchaise_app/View/Distribution%20Module/AuthModule/ResetPasswordScreen.dart';
 import 'package:franchaise_app/View/Distribution%20Module/BottomBar.dart';
 import 'package:get/get.dart';
@@ -267,6 +268,17 @@ class DistributorLoginController extends GetxController {
       String error = response["error"] ?? "";
 
       if (status != 200) {
+
+        if (message == "Account is not active" || message == "Account is blocked") {
+          EasyLoading.showError(message);
+
+
+          Future.delayed(Duration(seconds: 1), () {
+            Get.offAll(() => DistributorRegisterscreen());
+          });
+
+          return;
+        }
         EasyLoading.showError(error.isNotEmpty ? error : message);
         return;
       }
@@ -338,6 +350,7 @@ class DistributorForgotPasswordController extends GetxController {
         EasyLoading.showError("Enter valid Email");
         return;
       }
+      Get.to(DistributorRegisterscreen());
 
       EasyLoading.show(status: "Sending OTP...");
 

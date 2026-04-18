@@ -220,7 +220,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 /// SAVE BUTTON
                 GestureDetector(
                   onTap: () {
-                    controller.updateProfile();
+                    controller.updateProfile(selectedImage);
                   },
                   child: Container(
                     width: double.infinity,

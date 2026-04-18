@@ -19,6 +19,7 @@ class FranchiseDetailsPage extends StatefulWidget {
 
 class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
   final controller = Get.put(FranchiseDetailsController());
+  int currentIndex = 0;
 
 
   @override
@@ -31,6 +32,10 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
       viewType: "profile",
     );
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +65,19 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
 
         final data = controller.details.value;
 
+
         if (data == null) {
           return Center(child: Text("No Data"));
+        }
+        /// ✅ FIXED BENEFITS LOGIC
+        List<String> benefits = [];
+
+        if (data.keyBenefits.isNotEmpty) {
+          benefits = data.keyBenefits
+              .replaceAll('"', '')
+              .split(',')
+              .map((e) => e.trim())
+              .toList();
         }
         return SingleChildScrollView(
           child: Column(
@@ -72,18 +88,56 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
                 children: [
 
                   SizedBox(
-                      height: height * 0.45,
-                      width: double.infinity,
-                      child: (controller.details.value?.image ?? "").isNotEmpty
-                          ? Image.network(
-                        "${AppConfig.imageURL}${controller.details.value!.image}",
-                        fit: BoxFit.cover,
-                      )
-                          : Image.asset(
-                        "assets/images/img.png", // ✅ default image
-                        fit: BoxFit.cover,
-                      ),
+                    height: height * 0.45,
+                    width: double.infinity,
+                    child: PageView.builder(
+                      itemCount: controller.details.value?.images?.length ?? 0,
+                      onPageChanged: (index) {
+                        setState(() {
+                          currentIndex = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        final image = controller.details.value?.images?[index] ?? "";
+
+                        return Image.network(
+                          "${AppConfig.imageURL}$image",
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              "assets/images/img.png",
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
+
+                  /// 🔵 DOT INDICATOR
+                  Positioned(
+                    bottom: 15,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        controller.details.value?.images?.length ?? 0,
+                            (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: currentIndex == index ? 10 : 6,
+                          height: currentIndex == index ? 10 : 6,
+                          decoration: BoxDecoration(
+                            color: currentIndex == index
+                                ? Colors.white
+                                : Colors.white54,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
 
                   SafeArea(
                     child: Padding(
@@ -162,10 +216,21 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
                           height: 55,
                           width: 55,
                           decoration: BoxDecoration(
-                            color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
                           ),
-                          child: const Icon(Icons.store, color: Colors.black),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: (data.ownerImage.isNotEmpty)
+                                ? Image.network(
+                              "${AppConfig.imageURL}${data.ownerImage}",
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(Icons.person, color: Colors.black);
+                              },
+                            )
+                                : const Icon(Icons.person, color: Colors.black),
+                          ),
                         ),
 
                         const SizedBox(width: 12),
@@ -175,7 +240,7 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
                           children: [
 
                             Text(
-                              data?.businessName ?? "",
+                              data?.brandname ?? "",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -211,16 +276,18 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
 
                     const SizedBox(height: 15),
 
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //
-                    //     statCard(Icons.home,"Units","123"),
-                    //     statCard(Icons.public,"Regions","123"),
-                    //     statCard(Icons.access_time,"Term","123"),
-                    //
-                    //   ],
-                    // ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        statCard(Icons.home, "Units", data.units),
+
+                        statCard(Icons.public, "Regions", data.regions),
+
+                        statCard(Icons.access_time, "Term", data.term),
+
+                      ],
+                    ),
 
 
                     const SizedBox(height: 20),
@@ -245,45 +312,39 @@ class _FranchiseDetailsPageState extends State<FranchiseDetailsPage> {
 
                     const SizedBox(height: 20),
 
-                    // const Text(
-                    //   "Key Benifits",
-                    //   style: TextStyle(
-                    //     color: Colors.white,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                    //
-                    // const SizedBox(height:10),
-                    //
-                    // const Row(
-                    //   children: [
-                    //     Icon(Icons.check,color: Colors.white70,size:18),
-                    //     SizedBox(width:8),
-                    //     Text("Site Selection Support",style: TextStyle(color: Colors.white70))
-                    //   ],
-                    // ),
-                    //
-                    // const SizedBox(height:6),
-                    //
-                    // const Row(
-                    //   children: [
-                    //     Icon(Icons.check,color: Colors.white70,size:18),
-                    //     SizedBox(width:8),
-                    //     Text("Comprehensive Training",style: TextStyle(color: Colors.white70))
-                    //   ],
-                    // ),
-                    //
-                    // const SizedBox(height:6),
-                    //
-                    // const Row(
-                    //   children: [
-                    //     Icon(Icons.check,color: Colors.white70,size:18),
-                    //     SizedBox(width:8),
-                    //     Text("National Marketing",style: TextStyle(color: Colors.white70))
-                    //   ],
-                    // ),
-                    //
-                    // const SizedBox(height:30),
+                    const Text(
+                      "Key Benefits",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Column(
+                      children: benefits.map((item) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.check, color: Colors.red, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  item,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    const SizedBox(height:30),
 
                     /// CONTACT BUTTON
                     InkWell(

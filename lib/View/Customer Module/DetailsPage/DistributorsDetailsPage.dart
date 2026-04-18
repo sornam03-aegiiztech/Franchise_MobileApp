@@ -72,6 +72,15 @@ class _DistributorsDetailsPageState
         if (data == null) {
           return const Center(child: Text("No Data"));
         }
+        List<String> products = [];
+
+        if (data.products.isNotEmpty) {
+          products = data.products
+              .replaceAll('"', '')
+              .split(',')
+              .map((e) => e.trim())
+              .toList();
+        }
 
         return SafeArea(
           child: SingleChildScrollView(
@@ -114,8 +123,14 @@ class _DistributorsDetailsPageState
                                 color: Colors.black45,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.arrow_back_ios,
-                                  color: Colors.white, size: 18),
+                              child: const Padding(
+                                padding: EdgeInsets.only(left: 4), // 🔥 adjust
+                                child: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
                             ),
                           ),
 
@@ -163,11 +178,21 @@ class _DistributorsDetailsPageState
                             height: 55,
                             width: 55,
                             decoration: BoxDecoration(
-                              color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
+                              color: Colors.white,
                             ),
-                            child: const Icon(Icons.store,
-                                color: Colors.black),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: (data.logo.isNotEmpty)
+                                  ? Image.network(
+                                "${AppConfig.imageURL}${data.logo}",
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.store, color: Colors.black);
+                                },
+                              )
+                                  : const Icon(Icons.store, color: Colors.black),
+                            ),
                           ),
 
                           const SizedBox(width: 12),
@@ -225,7 +250,7 @@ class _DistributorsDetailsPageState
                       const SizedBox(height: 4),
 
                       Text(
-                        "${data.days} Days",
+                        "${data.days} ",
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -256,23 +281,46 @@ class _DistributorsDetailsPageState
 
                       const SizedBox(height: 20),
 
-                      /// TERRITORY
+
+
                       const Text(
-                        "Territory",
+                        "Products Handled",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
 
-                      Text(
-                        data.territory,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                        ),
+                      products.isEmpty
+                          ? const Text(
+                        "No Products Available",
+                        style: TextStyle(color: Colors.white70),
+                      )
+                          : Column(
+                        children: products.map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.check,
+                                    color: Colors.red, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    item,
+                                    style:
+                                    const TextStyle(color: Colors.white70),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
                       ),
+
+
 
                       const SizedBox(height: 30),
 

@@ -90,7 +90,7 @@ class DistributionLoginscreen extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Container(
+                      child: Obx(() => Container(
                         decoration: BoxDecoration(
                           border: Border.all(
                             width: 1,
@@ -100,19 +100,21 @@ class DistributionLoginscreen extends StatelessWidget {
                         ),
                         child: TextFormField(
                           controller: loginController.passwordController,
+                          obscureText: loginController.isPasswordHidden.value, // 👈 important
                           style: const TextStyle(
                             color: Colors.white,
                           ),
-
                           decoration: InputDecoration(
-                            hintText:'Enter Your Password',
+                            hintText: 'Enter Your Password',
                             hintStyle: TextStyle(
                               fontSize: 12,
-                              color:  Color(0xff999999),
+                              color: Color(0xff999999),
                             ),
                             contentPadding: EdgeInsets.symmetric(vertical: 10),
                             border: InputBorder.none,
-                            prefixIcon: Icon(Icons.lock,size: 16,color: Color(0xff989898)),
+                            prefixIcon:
+                            Icon(Icons.lock, size: 16, color: Color(0xff989898)),
+
                             suffixIcon: IconButton(
                               icon: Icon(
                                 loginController.isPasswordHidden.value
@@ -126,7 +128,7 @@ class DistributionLoginscreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
+                      )),
                     ),
                     SizedBox(
                       height: 10,

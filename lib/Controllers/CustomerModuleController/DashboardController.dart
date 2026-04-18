@@ -125,18 +125,53 @@ class ServicesController extends GetxController {
     getServices();
   }
 
+  // Future<void> getServices() async {
+  //   try {
+  //     isLoading(true);
+  //
+  //     final response = await http.get(
+  //       Uri.parse("${AppConfig.baseURL}services_list"),
+  //     );
+  //
+  //     final data = jsonDecode(response.body);
+  //
+  //
+  //
+  //
+  //     if (data["status"] == 200) {
+  //       List list = data["data"];
+  //
+  //       tabs.clear();
+  //       tabs.add("All");
+  //
+  //       for (var item in list) {
+  //         tabs.add(item["service_name"]);
+  //       }
+  //     }
+  //
+  //   } catch (e) {
+  //     EasyLoading.showError("Error");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
   Future<void> getServices() async {
     try {
       isLoading(true);
 
+      final token = AppConfig.pref.getString("token") ?? "";
+
+      print("SERVICE TOKEN → $token");
+
       final response = await http.get(
         Uri.parse("${AppConfig.baseURL}services_list"),
+        headers: {
+          "Accept": "application/json",
+          "Authorization": "Bearer $token", // 🔥 IMPORTANT
+        },
       );
 
       final data = jsonDecode(response.body);
-
-
-
 
       if (data["status"] == 200) {
         List list = data["data"];
@@ -356,7 +391,7 @@ class AllDistributorController extends GetxController {
 
       final data = jsonDecode(response.body);
 
-      print("FRANCHISE RESPONSE → $data");
+      print("Distributor RESPONSE → $data");
 
       if (data["status"] == 200) {
 
@@ -444,6 +479,8 @@ class AllServicesController extends GetxController {
   int currentPage = 1;
   int lastPage = 1;
 
+
+
   @override
   void onInit() {
     super.onInit();
@@ -484,7 +521,11 @@ class AllServicesController extends GetxController {
 
         var list = data["data"]["data"] ?? [];
 
-        services.addAll(list);
+        final uniqueList = {
+          for (var item in list) item['business_id']: item
+        }.values.toList();
+
+        services.value = uniqueList;
 
         currentPage = data["data"]["current_page"];
         lastPage = data["data"]["last_page"];
@@ -685,6 +726,8 @@ class GetFavouriteController extends GetxController {
 
   /// 🔥 DEBOUNCE
   Timer? _debounce;
+
+
 
   /// 🔥 TOKEN
   Future<String> getToken() async {
@@ -916,11 +959,15 @@ class GetDistributorDetailsController extends GetxController {
         "business_id": businessId,
         "view_type": viewType,
       });
+      print("API URL => $uri");
 
       final response = await http.get(uri, headers: {
         "Authorization": "Bearer $token",
         "Accept": "application/json",
       });
+
+      print("STATUS CODE => ${response.statusCode}");
+      print("RESPONSE BODY => ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

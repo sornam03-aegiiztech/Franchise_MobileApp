@@ -30,6 +30,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
   File? frontDoc;
   File? backDoc;
   File? document;
+  String selectedDoc = "Aadhaar Card";
 
   final ImagePicker picker = ImagePicker();
 
@@ -594,7 +595,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
 
               const SizedBox(height: 12),
 
-              _buildDropdownField("ID Document Type", "Aadhaar Card"),
+              _buildDropdownField("ID Document Type", selectedDoc),
 
               const SizedBox(height: 12),
 
@@ -605,11 +606,11 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
               /// 🔹 FRONT + BACK
               Row(
                 children: [
-                  Expanded(child: _buildSmallUploadBox("Front Side", frontDoc, (file) {
+                  Expanded(child: _buildSmallUploadBox("ID Document\n  Front Side", frontDoc, (file) {
                     setState(() => frontDoc = file);
                   }),),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildSmallUploadBox("Back Side", backDoc, (file) {
+                  Expanded(child: _buildSmallUploadBox("ID Document\n  Back Side", backDoc, (file) {
                     setState(() => backDoc = file);
                   }),),
                 ],
@@ -625,7 +626,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
           const SizedBox(height: 20),
 
           /// 🔹 BIG UPLOAD
-          _buildUploadBox("Upload Documents", document, (file) {
+          _buildUploadBox("Upload GST Documents", document, (file) {
             setState(() => document = file);
           }),
 
@@ -715,7 +716,10 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
       children: [
 
         Text(label,
-            style: const TextStyle(color: Colors.white,fontSize: 14,fontWeight: FontWeight.w500)),
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500)),
 
         const SizedBox(height: 6),
 
@@ -738,7 +742,11 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
                 child: Text(e),
               ))
                   .toList(),
-              onChanged: (val) {},
+              onChanged: (val) {
+                setState(() {
+                  selectedDoc = val!;
+                });
+              },
             ),
           ),
         ),
@@ -770,7 +778,7 @@ class _DistributionDetailsScreenState extends State<DistributionDetailsScreen> {
               const SizedBox(height: 6),
               Text(
                 title,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: Colors.white70,fontSize: 12),
               ),
             ],
           )

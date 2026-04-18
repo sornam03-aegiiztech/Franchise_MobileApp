@@ -1,54 +1,70 @@
 class FranchiseDetailsModel {
   final String businessId;
-  final String businessName;
+  final String brandname;
   final String category;
   final String description;
   final String investment;
   final String franchiseFee;
   final String capital;
-  final String image;
+  final List<String> images;
   final String ownerImage;
   final String ownerName;
   final String mobile;
   final String email;
   final String profileView;
   final String contactStatus;
+  final String units;
+  final String regions;
+  final String term;
+  final String keyBenefits;
 
 
   FranchiseDetailsModel({
     required this.businessId,
-    required this.businessName,
+    required this.brandname,
     required this.category,
     required this.description,
     required this.investment,
     required this.franchiseFee,
     required this.capital,
-    required this.image,
+    required this.images,
     required this.ownerImage,
     required this.ownerName,
     required this.mobile,
     required this.email,
     required this.profileView,
     required this.contactStatus,
+    required this.units,
+    required this.regions,
+    required this.term,
+    required this.keyBenefits,
+
 
   });
 
   factory FranchiseDetailsModel.fromJson(Map<String, dynamic> json) {
     return FranchiseDetailsModel(
       businessId: json['business_id']?.toString() ?? "",
-      businessName: json['business_name']?.toString() ?? "",
+      brandname: json['brand_name']?.toString() ?? "",
       category: json['business_category']?.toString() ?? "",
       description: json['business_description']?.toString() ?? "",
       investment: json['total_invesment']?.toString() ?? "",
       franchiseFee: json['franchise_fee']?.toString() ?? "",
       capital: json['liquid_capital_requried']?.toString() ?? "",
-      image: json['image']?.toString() ?? "",
+      images: (json['images'] as List?)
+          ?.map((e) => e.toString())
+          .toList() ??
+          [],
       ownerImage: json['brand_owner_image']?.toString() ?? "",
       ownerName: json['owner_company_name']?.toString() ?? "",
-      mobile: json['business_mobile']?.toString() ?? "",
+      mobile: json['mobile_number']?.toString() ?? "",
       email: json['business_email']?.toString() ?? "",
       profileView: json['profile_view']?.toString() ?? "",
       contactStatus: json['contact_status']?.toString() ?? "",
+      units: json['units']?.toString() ?? "",
+      regions: json['regions']?.toString() ?? "",
+      term: json['term']?.toString() ?? "",
+      keyBenefits: json['key_benefits_added']?.toString() ?? "",
 
     );
   }
@@ -71,6 +87,7 @@ class DistributorDetailsModel {
   final String city;
   final String profileView;
   final String contactStatus;
+  final String products;
 
   DistributorDetailsModel({
     required this.businessId,
@@ -89,6 +106,7 @@ class DistributorDetailsModel {
     required this.city,
     required this.profileView,
     required this.contactStatus,
+    required this.products
   });
 
   factory DistributorDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -109,6 +127,7 @@ class DistributorDetailsModel {
       city: json['city']?.toString() ?? "",
       profileView: json['profile_view']?.toString() ?? "",
       contactStatus: json['contact_status']?.toString() ?? "",
+      products: json['product_handled']?.toString() ?? "",
     );
   }
 }

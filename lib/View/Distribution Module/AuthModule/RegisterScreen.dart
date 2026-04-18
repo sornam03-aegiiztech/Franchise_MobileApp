@@ -8,7 +8,7 @@ import 'package:franchaise_app/Controllers/DistributorModuleController/AuthContr
 import 'package:get/get.dart';
 
 import 'LoginScreen.dart';
-import 'OTPScreen.dart';
+
 
 class DistributorRegisterscreen extends StatelessWidget {
    DistributorRegisterscreen({super.key});

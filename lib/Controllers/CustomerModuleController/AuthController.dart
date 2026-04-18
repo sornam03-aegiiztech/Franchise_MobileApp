@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Customer%20Module/AuthModule/LoginScreen.dart';
+import 'package:franchaise_app/View/Customer%20Module/AuthModule/RegisterScreen.dart';
 import 'package:franchaise_app/View/Customer%20Module/BottomBar.dart';
 import 'package:get/get.dart';
 import '../../Appconfig.dart';
@@ -108,23 +109,7 @@ class CustomerRegisterController extends GetxController {
             email: emailController.text,
           ));
 
-          AppConfig.httpPost("send_otp", {
-            "email": emailController.text,
-            "role": "Customer",
-          }).then((otpResponse) {
-            if (otpResponse != null) {
-              String otpMsg =
-                  otpResponse["message"] ?? "OTP sending failed";
 
-              if (otpResponse["status"] == 200) {
-                EasyLoading.showSuccess(otpMsg);
-              } else {
-                EasyLoading.showError(otpMsg);
-              }
-            } else {
-              EasyLoading.showError("OTP API failed");
-            }
-          });
 
         } else {
           EasyLoading.showError(message);
@@ -273,6 +258,17 @@ class CustomerLoginController extends GetxController {
 
 
       if (status != 200) {
+
+        if (message == "Account is not active" || message == "Account is blocked") {
+          EasyLoading.showError(message);
+
+          /// 👉 Register screen ku redirect
+          Future.delayed(Duration(seconds: 1), () {
+            Get.offAll(() => CustomerRegisterscreen()); // 👈 unga register screen
+          });
+
+          return;
+        }
         EasyLoading.showError(
             error.isNotEmpty ? error : message );
         return;
@@ -337,6 +333,7 @@ class CustomerForgotPasswordController extends GetxController {
         EasyLoading.showError("Enter valid Email");
         return;
       }
+      Get.to(CustomerRegisterscreen());
 
       EasyLoading.show(status: "Sending OTP...");
 

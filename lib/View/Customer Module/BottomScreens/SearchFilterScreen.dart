@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:franchaise_app/Constants/Colors.dart';
 import 'package:get/get.dart';
@@ -16,6 +18,9 @@ class SearchFilterPage extends StatefulWidget {
 
 class _SearchFilterPageState extends State<SearchFilterPage> {
   final controller = Get.put(AllServicesController());
+  TextEditingController searchController = TextEditingController();
+
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -82,18 +87,23 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ),
 
                       child: TextFormField(
+                        controller: searchController, // 🔥 important
                         style: const TextStyle(color: Colors.white),
 
                         onChanged: (value) {
                           controller.searchText.value = value;
 
-                          controller.getServices(
-                            search: value,
-                            category: controller.selectedCategory.value,
-                          );
+                          if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                          _debounce = Timer(const Duration(milliseconds: 500), () {
+                            controller.getServices(
+                              search: value,
+                              category: controller.selectedCategory.value,
+                            );
+                          });
                         },
 
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
                           hintText: "Search ...",
                           hintStyle: TextStyle(color: Colors.white54,fontSize: 14),
@@ -105,10 +115,21 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                             size: 16,
                           ),
 
-                          suffixIcon: Icon(
-                            Icons.close,
-                            color: Colors.white54,
-                            size: 16,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              searchController.clear(); // 🔥 UI clear
+                              controller.searchText.value = "";
+
+                              controller.getServices(
+                                search: "",
+                                category: controller.selectedCategory.value,
+                              );
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.white54,
+                              size: 16,
+                            ),
                           ),
                         ),
                       ),

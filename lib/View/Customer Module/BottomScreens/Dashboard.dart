@@ -300,7 +300,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      data["business_name"]?? "",
+                                                      data["brand_name"]?? "",
                                                       style: const TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 18,

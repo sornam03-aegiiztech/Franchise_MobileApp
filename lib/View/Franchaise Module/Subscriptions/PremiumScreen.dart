@@ -171,11 +171,12 @@ class ActivateFranchiseScreen extends StatelessWidget {
                               ),
                             ),
 
-                            child:  Text(
-                              subscriptionController.planType.value,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                            child:  Obx(()=> Text(
+                                subscriptionController.planType.value,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Distribution%20Module/BottomScreens/ProfileScreen.dart';
@@ -65,8 +66,8 @@ class FranchiseProfileController extends GetxController {
 
         businessName.value = profile["business_name"] ?? "";
         ownerName.value = profile["owner_name"] ?? "";
-        profileImage.value = profile["image"] != null
-            ? "${AppConfig.imageURL}${profile["image"]}"
+        profileImage.value = profile["profile_image"] != null
+            ? "${AppConfig.imageURL}${profile["profile_image"]}"
             : "";
 
         EasyLoading.showSuccess( data["message"]);
@@ -83,37 +84,91 @@ class FranchiseProfileController extends GetxController {
   }
 
   /// ---------------- UPDATE PROFILE ----------------
-  Future<void> updateProfile() async {
+  // Future<void> updateProfile() async {
+  //   try {
+  //     isLoading(true);
+  //
+  //     String? token = AppConfig.pref.getString("token");
+  //
+  //     final response = await http.post(
+  //       Uri.parse("${AppConfig.baseURL}franchise_profile_update"),
+  //       headers: {
+  //         "Authorization": "Bearer $token",
+  //         "Accept": "application/json"
+  //       },
+  //       body: {
+  //         "business_name": nameTextController.text,
+  //         "owner_name":OwnerTextController.text,
+  //         "business_mobile": mobileTextController.text,
+  //         "business_email": emailTextController.text,
+  //       },
+  //     );
+  //
+  //     print("UPDATE PROFILE → ${response.body}");
+  //
+  //     final data = jsonDecode(response.body);
+  //
+  //     if (data["status"] == 200) {
+  //       EasyLoading.showSuccess(data["message"]);
+  //       getProfile();
+  //       Get.back();
+  //     } else {
+  //       String errorMessage = data["error"] ?? data["message"];
+  //       EasyLoading.showError( errorMessage);
+  //     }
+  //
+  //   } catch (e) {
+  //     EasyLoading.showError("Exception occurred");
+  //   } finally {
+  //     isLoading(false);
+  //   }
+  // }
+  Future<void> updateProfile(File? imageFile) async {
     try {
       isLoading(true);
 
       String? token = AppConfig.pref.getString("token");
 
-      final response = await http.post(
+      var request = http.MultipartRequest(
+        "POST",
         Uri.parse("${AppConfig.baseURL}franchise_profile_update"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Accept": "application/json"
-        },
-        body: {
-          "business_name": nameTextController.text,
-          "owner_name":OwnerTextController.text,
-          "business_mobile": mobileTextController.text,
-          "business_email": emailTextController.text,
-        },
       );
 
-      print("UPDATE PROFILE → ${response.body}");
+      request.headers.addAll({
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      });
 
-      final data = jsonDecode(response.body);
+      request.fields.addAll({
+        "business_name": nameTextController.text,
+        "owner_name": OwnerTextController.text,
+        "business_mobile": mobileTextController.text,
+        "business_email": emailTextController.text,
+      });
+
+      /// 🔥 IMAGE ADD HERE
+      if (imageFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            "profile_image", // ⚠️ KEY CONFIRM WITH BACKEND
+            imageFile.path,
+          ),
+        );
+      }
+
+      var response = await request.send();
+      var resBody = await response.stream.bytesToString();
+
+      print("UPDATE PROFILE → $resBody");
+
+      final data = jsonDecode(resBody);
 
       if (data["status"] == 200) {
         EasyLoading.showSuccess(data["message"]);
         getProfile();
         Get.back();
       } else {
-        String errorMessage = data["error"] ?? data["message"];
-        EasyLoading.showError( errorMessage);
+        EasyLoading.showError(data["message"]);
       }
 
     } catch (e) {
