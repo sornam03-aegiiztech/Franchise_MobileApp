@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Customer%20Module/AuthModule/LoginScreen.dart';
@@ -239,10 +240,14 @@ class CustomerLoginController extends GetxController {
 
       EasyLoading.show(status: "Logging in...");
 
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      print("FCM TOKEN => $fcmToken");
+
       final response = await AppConfig.httpPost("login", {
         "email": emailController.text.trim(),
         "role": "Customer",
         "password":passwordController.text.trim(),
+        "fcm_token": fcmToken ?? "",
       });
 
       EasyLoading.dismiss();

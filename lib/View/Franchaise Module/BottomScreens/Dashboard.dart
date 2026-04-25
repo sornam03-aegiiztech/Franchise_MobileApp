@@ -36,15 +36,15 @@ class DashboardScreen extends StatelessWidget {
                       as ImageProvider,
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xff2C2C2E),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.notifications_none,
-                          color: Colors.white),
-                    )
+                    // Container(
+                    //   padding: const EdgeInsets.all(10),
+                    //   decoration: const BoxDecoration(
+                    //     color: Color(0xff2C2C2E),
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    //   child: const Icon(Icons.notifications_none,
+                    //       color: Colors.white),
+                    // )
                   ],
                 )),
       

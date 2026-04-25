@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppConfig {
   static String baseURL =
-      "https://aegiiz.us/ffdj_application/api/";
+      "https://ffdj.in/api/";
   static String imageURL =
-      "https://aegiiz.us/ffdj_application/upload/";
+      "https://ffdj.in/upload/";
 
   AppConfig._();
 

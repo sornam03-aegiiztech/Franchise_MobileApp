@@ -65,22 +65,22 @@ class _DistributorOtpScreenState extends State<DistributorOtpScreen > {
             children: [
 
               /// Back Button
-              Align(
-                alignment: Alignment.centerLeft,
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withOpacity(0.1),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios,
-                          color: Colors.white, size: 16),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ),
-              ),
+              // Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: CircleAvatar(
+              //     backgroundColor: Colors.white.withOpacity(0.1),
+              //     child: Padding(
+              //       padding: const EdgeInsets.only(left: 8.0),
+              //       child: IconButton(
+              //         icon: const Icon(Icons.arrow_back_ios,
+              //             color: Colors.white, size: 16),
+              //         onPressed: () {
+              //           Navigator.pop(context);
+              //         },
+              //       ),
+              //     ),
+              //   ),
+              // ),
 
               const SizedBox(height: 30),
 

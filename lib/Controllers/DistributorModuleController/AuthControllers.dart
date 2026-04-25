@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:franchaise_app/View/Distribution%20Module/AuthModule/ForgotPasswordScreen.dart';
@@ -249,11 +250,14 @@ class DistributorLoginController extends GetxController {
       }
 
       EasyLoading.show(status: "Logging in...");
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      print("DISTRIBUTOR ROLE FCM TOKEN => $fcmToken");
 
       final response = await AppConfig.httpPost("login", {
         "email": emailController.text.trim(),
         "role": "Distributor",
         "password": passwordController.text.trim(),
+        "fcm_token": fcmToken ?? "",
       });
 
       EasyLoading.dismiss();
